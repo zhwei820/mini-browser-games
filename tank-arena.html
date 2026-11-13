@@ -149,6 +149,10 @@
         background: linear-gradient(90deg, var(--green), var(--cyan));
       }
 
+      .bar.shield span {
+        background: linear-gradient(90deg, #2563eb, var(--cyan));
+      }
+
       .bar.heat span {
         background: linear-gradient(90deg, var(--gold), var(--red));
       }
@@ -626,6 +630,9 @@
           <div class="bar">
             <span id="healthBar" style="width: 100%"></span>
           </div>
+          <div class="bar shield">
+            <span id="shieldBar" style="width: 100%"></span>
+          </div>
           <div class="bar heat">
             <span id="reloadBar" style="width: 100%"></span>
           </div>
@@ -753,6 +760,7 @@
         const enemyValue = document.getElementById("enemyValue");
         const armorValue = document.getElementById("armorValue");
         const healthBar = document.getElementById("healthBar");
+        const shieldBar = document.getElementById("shieldBar");
         const reloadBar = document.getElementById("reloadBar");
         const shellValue = document.getElementById("shellValue");
         const bounceValue = document.getElementById("bounceValue");
@@ -1657,10 +1665,10 @@
             bodyAngle: -Math.PI / 2,
             turretAngle: -Math.PI / 2,
             size: PLAYER_SIZE,
-            hp: 100,
-            maxHp: 100,
-            speed: 190,
-            reload: 0.42,
+            hp: 130,
+            maxHp: 130,
+            speed: 205,
+            reload: 0.38,
             reloadLeft: 0,
             damage: 28,
             bulletSpeed: 560,
@@ -1673,6 +1681,8 @@
             skillMines: 0,
             shieldUntil: 0,
             shieldBonus: 0,
+            energyShield: 0,
+            lastHitAt: -99,
             turretTurn: 9,
             shellName: "标准弹",
             pickupMagnet: 190,
@@ -1692,6 +1702,7 @@
             (tank.maxHp + (garageSave.tech.armor || 0) * 4) * chassis.hp,
           );
           tank.hp = tank.maxHp;
+          tank.energyShield = maxEnergyShield(tank);
           tank.speed *= chassis.speed;
           tank.reload *= chassis.reload * cannon.reload;
           tank.reload *= 1 - (garageSave.tech.cooling || 0) * 0.02;
@@ -1710,6 +1721,17 @@
           tank.skillMines = chassis.mines || 0;
           tank.pickupMagnet *= chassis.magnet || 1;
           return tank;
+        }
+
+        const PLAYER_DAMAGE_TAKEN = 0.75;
+        const PLAYER_HIT_GRACE = 0.3;
+        const SHIELD_REGEN_DELAY = 2.5;
+        const SHIELD_REGEN_RATE = 20;
+        const HP_REGEN_DELAY = 4;
+        const HP_REGEN_RATE = 4;
+
+        function maxEnergyShield(tank) {
+          return Math.round(tank.maxHp * 0.45);
         }
 
         function newGame() {
@@ -1927,6 +1949,7 @@
           player.x = WORLD / 2;
           player.y = WORLD / 2;
           player.hp = player.maxHp;
+          player.energyShield = maxEnergyShield(player);
           player.score = 0;
           player.scrap = 0;
           player.parts = [];
@@ -2292,6 +2315,15 @@
             player.size * 0.48,
           );
           if (pointer.down) playerShoot();
+          if (player.hp > 0) {
+            const sinceHit = performance.now() / 1000 - player.lastHitAt;
+            if (sinceHit > SHIELD_REGEN_DELAY)
+              player.energyShield = Math.min(
+                maxEnergyShield(player),
+                player.energyShield + SHIELD_REGEN_RATE * dt,
+              );
+            if (sinceHit > HP_REGEN_DELAY) healPlayer(HP_REGEN_RATE * dt);
+          }
         }
 
         function updateDrones(dt) {
@@ -2501,13 +2533,15 @@
 
         function collectPickup(target, pickup) {
           if (pickup.kind === "repair") {
-            target.hp = Math.min(target.maxHp, target.hp + 28);
-            addFloater("修复 +28", target.x, target.y - 36, "#4ade80");
+            const repair = target === player ? 42 : 28;
+            target.hp = Math.min(target.maxHp, target.hp + repair);
+            addFloater(`修复 +${repair}`, target.x, target.y - 36, "#4ade80");
             if (target === player) showToast("装甲修复");
             return;
           }
           if (pickup.kind === "shield") {
             target.shieldUntil = performance.now() / 1000 + 2.4;
+            if (target === player) player.energyShield = maxEnergyShield(player);
             addFloater("护盾", target.x, target.y - 36, "#38d9ff");
             if (target === player) showToast("临时护盾启动");
             return;
@@ -3054,18 +3088,28 @@
             spark(player.x, player.y, "#38d9ff", 12);
             return;
           }
-          player.hp -= amount * (1 - (player.frontArmor || 0) * 0.5);
-          player.hp = Math.max(0, player.hp);
+          if (now - player.lastHitAt < PLAYER_HIT_GRACE) return;
+          player.lastHitAt = now;
+          let taken =
+            amount * PLAYER_DAMAGE_TAKEN * (1 - (player.frontArmor || 0) * 0.5);
+          if (player.energyShield > 0) {
+            const absorbed = Math.min(player.energyShield, taken);
+            player.energyShield -= absorbed;
+            taken -= absorbed;
+            spark(player.x, player.y, "#38d9ff", 8);
+            if (player.energyShield <= 0) showToast("护盾击穿");
+          }
+          player.hp = Math.max(0, player.hp - taken);
           if (player.hp <= 0 && killer && isCompetitiveMode()) {
             killer.points = (killer.points || 0) + 260;
             killer.kills = (killer.kills || 0) + 1;
           }
           shake(8);
           addFloater(
-            `-${Math.round(amount)}`,
+            `-${Math.round(taken)}`,
             player.x,
             player.y - 34,
-            "#ff6178",
+            taken > 0 ? "#ff6178" : "#38d9ff",
           );
         }
 
@@ -3264,8 +3308,9 @@
           player.y = point.y;
           player.vx = 0;
           player.vy = 0;
-          player.hp = Math.max(54, player.maxHp * 0.72);
-          player.shieldUntil = performance.now() / 1000 + 1.4;
+          player.hp = Math.max(70, player.maxHp * 0.85);
+          player.energyShield = maxEnergyShield(player);
+          player.shieldUntil = performance.now() / 1000 + 2.5;
           showToast("战车重部署");
         }
 
@@ -3431,6 +3476,7 @@
           enemyValue.textContent = enemies.length;
           armorValue.textContent = Math.round(player.hp);
           healthBar.style.width = `${clamp((player.hp / player.maxHp) * 100, 0, 100)}%`;
+          shieldBar.style.width = `${clamp((player.energyShield / maxEnergyShield(player)) * 100, 0, 100)}%`;
           reloadBar.style.width = `${clamp((1 - player.reloadLeft / player.reload) * 100, 0, 100)}%`;
           shellValue.textContent = player.shellName;
           bounceValue.textContent = String(player.bounces);
@@ -3740,6 +3786,14 @@
               0,
               Math.PI * 2,
             );
+            ctx.stroke();
+          }
+
+          if (isPlayer && player.energyShield > 0) {
+            ctx.strokeStyle = `rgba(56, 217, 255, ${0.12 + 0.3 * (player.energyShield / maxEnergyShield(player))})`;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(tank.x, tank.y, size * 0.7, 0, Math.PI * 2);
             ctx.stroke();
           }
 
