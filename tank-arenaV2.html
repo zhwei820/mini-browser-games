@@ -517,6 +517,89 @@
         transform: translate(-50%, -8px);
       }
 
+      .stage-card {
+        min-height: 0;
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--accent, var(--cyan));
+        border-radius: 8px;
+        background: rgba(23, 34, 50, 0.94);
+      }
+
+      .upgrade-grid.hidden {
+        display: none;
+      }
+
+      .upgrade-card.picked {
+        border-color: rgba(255, 209, 102, 0.85);
+        background: rgba(255, 209, 102, 0.12);
+      }
+
+      .upgrade-card:disabled:not(.picked) {
+        opacity: 0.4;
+      }
+
+      .shop-head {
+        margin: 14px 0 8px;
+        color: var(--gold);
+        font-size: 13px;
+        font-weight: 850;
+      }
+
+      .shop-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 8px;
+      }
+
+      .shop-card {
+        min-height: 92px;
+        padding: 9px;
+        text-align: left;
+      }
+
+      .shop-card:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      .shop-card small {
+        color: var(--muted);
+        font-size: 10px;
+      }
+
+      .shop-card strong {
+        display: block;
+        margin-top: 2px;
+        color: #ffffff;
+        font-size: 13px;
+      }
+
+      .shop-card strong b {
+        color: var(--cyan);
+        font-size: 11px;
+      }
+
+      .shop-card span {
+        display: block;
+        margin-top: 4px;
+        color: #b8c8dc;
+        font-size: 11px;
+        line-height: 1.4;
+      }
+
+      .shop-card em {
+        display: block;
+        margin-top: 5px;
+        color: var(--gold);
+        font-size: 11px;
+        font-style: normal;
+        font-weight: 800;
+      }
+
+      #shopContinue {
+        width: 100%;
+      }
+
       @media (max-width: 860px) {
         .brand,
         .side {
@@ -543,9 +626,15 @@
           display: none;
         }
         .controls {
-          left: 50%;
-          bottom: 10px;
-          transform: translateX(-50%);
+          left: auto;
+          right: 12px;
+          bottom: 100px;
+          flex-direction: column;
+        }
+        .icon-btn {
+          width: 38px;
+          height: 38px;
+          font-size: 17px;
         }
         .move-joystick {
           display: block;
@@ -603,10 +692,10 @@
 
     <div class="hud">
       <section class="brand panel">
-        <h1>霓虹装甲 <b>钢铁纪元 V3</b></h1>
+        <h1>霓虹装甲 <b>纵向闯关</b></h1>
         <div class="stats">
           <div class="stat">
-            <div class="label">战况</div>
+            <div class="label">关卡</div>
             <div class="value" id="waveValue">1</div>
           </div>
           <div class="stat">
@@ -649,7 +738,7 @@
             <span>反弹</span><strong id="bounceValue">1</strong>
           </div>
           <div class="status-row">
-            <span>模块</span><strong id="partValue">0</strong>
+            <span>零件</span><strong id="partValue">0</strong>
           </div>
           <div class="status-row">
             <span>技能</span><strong id="skillValue">电磁脉冲</strong>
@@ -658,7 +747,10 @@
             <span>目标</span><strong id="objectiveValue">清空敌军</strong>
           </div>
           <div class="status-row">
-            <span>操作</span><strong>WASD / 鼠标</strong>
+            <span>备用车体</span><strong id="lifeValue">1</strong>
+          </div>
+          <div class="status-row">
+            <span>操作</span><strong>WASD / 鼠标 / B 改装</strong>
           </div>
         </div>
       </section>
@@ -666,6 +758,7 @@
       <div class="controls">
         <button class="icon-btn" id="pauseBtn" title="暂停">Ⅱ</button>
         <button class="icon-btn" id="restartBtn" title="重新开始">↻</button>
+        <button class="icon-btn" id="shopBtn" title="改装 (B)">🔧</button>
       </div>
 
       <button class="skill-btn" id="skillBtn" title="技能">✦</button>
@@ -676,44 +769,11 @@
 
     <div class="overlay" id="overlay">
       <section class="start-card panel">
-        <h2 id="overlayTitle">霓虹装甲：钢铁纪元 V3</h2>
+        <h2 id="overlayTitle">霓虹装甲：纵向闯关</h2>
         <p id="overlayText">
-          驾驶一辆炮塔独立转向的主战坦克，穿过可破坏街区，利用反弹炮弹、侧后方弱点、波次升级或零件构筑击穿敌军。
+          从战区南端出发一路向北，突破随机生成的街区、峡谷与碉堡，在每关尽头的封锁闸门后击毁关底首领。共五关，击毁敌人收集零件，随时按 B 或 🔧 改装：主炮火力、复合装甲、能量护盾可无限叠加升级。
         </p>
-        <div class="mode-grid" id="modeGrid">
-          <button class="mode-card active" data-mode="campaign">
-            <strong>装甲突围</strong>
-            <span>8 波战斗，节奏均衡，最后迎战移动堡垒。</span>
-          </button>
-          <button class="mode-card" data-mode="siege">
-            <strong>守点压制</strong>
-            <span>敌军更多，油桶和掩体更密，适合喜欢爆炸的人。</span>
-          </button>
-          <button class="mode-card" data-mode="duel">
-            <strong>精英猎杀</strong>
-            <span>敌人更少但更强，弱点命中和走位更重要。</span>
-          </button>
-          <button class="mode-card" data-mode="arena">
-            <strong>计时死斗</strong>
-            <span>16 辆坦克持续复活，拾取模块自动装配，限时抢分。</span>
-          </button>
-          <button class="mode-card" data-mode="elimination">
-            <strong>终局竞技</strong>
-            <span>16 辆坦克一命决斗，拾取模块变强，最后存活者第一。</span>
-          </button>
-          <button class="mode-card" data-mode="storm">
-            <strong>风暴战线</strong>
-            <span>10 波高压行动，空袭与补给事件更加频繁，首领进入二阶段。</span>
-          </button>
-          <button class="mode-card" data-mode="bossRush">
-            <strong>堡垒连战</strong>
-            <span>5 场首领连续压境，每场都会换装护卫并强化阶段机制。</span>
-          </button>
-          <button class="mode-card" data-mode="endless">
-            <strong>无尽战区</strong>
-            <span>波次持续升级，每 8 波出现移动堡垒，检验极限构筑。</span>
-          </button>
-        </div>
+        <div class="mode-grid" id="stageGrid"></div>
         <div class="garage-wrap">
           <section class="garage-block">
             <h3>底盘选择</h3>
@@ -745,6 +805,9 @@
       <section class="upgrade-panel panel">
         <h2 id="upgradeTitle">选择升级</h2>
         <div class="upgrade-grid" id="upgradeGrid"></div>
+        <div class="shop-head" id="shopScrap">零件 0</div>
+        <div class="shop-grid" id="shopGrid"></div>
+        <button class="primary" id="shopContinue" type="button">返回战斗</button>
       </section>
     </div>
 
@@ -776,8 +839,12 @@
         const overlay = document.getElementById("overlay");
         const overlayTitle = document.getElementById("overlayTitle");
         const overlayText = document.getElementById("overlayText");
-        const modeGrid = document.getElementById("modeGrid");
-        const modeButtons = [...document.querySelectorAll("[data-mode]")];
+        const stageGrid = document.getElementById("stageGrid");
+        const lifeValue = document.getElementById("lifeValue");
+        const shopBtn = document.getElementById("shopBtn");
+        const shopGrid = document.getElementById("shopGrid");
+        const shopScrap = document.getElementById("shopScrap");
+        const shopContinue = document.getElementById("shopContinue");
         const chassisGrid = document.getElementById("chassisGrid");
         const cannonGrid = document.getElementById("cannonGrid");
         const armoryGrid = document.getElementById("armoryGrid");
@@ -791,79 +858,135 @@
         const upgradeGrid = document.getElementById("upgradeGrid");
         const toast = document.getElementById("toast");
 
-        const WORLD = 2600;
         const TILE = 78;
+        const COLS = 22;
+        const WORLD_W = COLS * TILE;
+        const GATE_ROW = 14;
+        const GATE_GAP = [9, 12];
+        const SEGMENT_ROWS = 10;
         const PLAYER_SIZE = 42;
-        const MODES = {
-          campaign: {
-            name: "装甲突围",
-            waves: 8,
-            enemyScale: 1,
-            barrelScale: 1,
-            eliteScale: 1,
+        const MODE_KEY = "vertical";
+        let ROWS = 90;
+        let WORLD_H = ROWS * TILE;
+        const STAGES = [
+          {
+            name: "焦土前哨",
+            floor: "#0a151b",
+            grid: "rgba(129, 194, 213, 0.08)",
+            accent: "#38d9ff",
+            segments: 6,
+            pool: ["scout", "scout", "heavy", "turret"],
+            squad: 3,
+            elite: 0.6,
+            barrels: 1,
+            storm: false,
+            boss: {
+              name: "铁幕堡垒",
+              hp: 1100,
+              color: "#ff9f43",
+              size: 82,
+              interval: 4.2,
+              moves: ["fan", "summon", "ring"],
+            },
           },
-          siege: {
-            name: "守点压制",
-            waves: 9,
-            enemyScale: 1.24,
-            barrelScale: 1.55,
-            eliteScale: 1,
+          {
+            name: "赤砂峡谷",
+            floor: "#17110c",
+            grid: "rgba(255, 178, 95, 0.08)",
+            accent: "#ffb25f",
+            segments: 6,
+            pool: ["scout", "heavy", "rocket", "miner", "turret"],
+            squad: 4,
+            elite: 0.9,
+            barrels: 1.3,
+            storm: false,
+            boss: {
+              name: "火箭蜂巢",
+              hp: 1700,
+              color: "#a78bfa",
+              size: 84,
+              interval: 3.8,
+              moves: ["barrage", "fan", "mines", "summon"],
+            },
           },
-          duel: {
-            name: "精英猎杀",
-            waves: 7,
-            enemyScale: 0.72,
-            barrelScale: 0.82,
-            eliteScale: 1.28,
+          {
+            name: "冰封工业区",
+            floor: "#0b1320",
+            grid: "rgba(147, 197, 253, 0.09)",
+            accent: "#93c5fd",
+            segments: 7,
+            pool: ["scout", "heavy", "rocket", "shield", "artillery", "turret"],
+            squad: 4,
+            elite: 1.1,
+            barrels: 1,
+            storm: false,
+            boss: {
+              name: "磁轨巨炮",
+              hp: 2400,
+              color: "#f472b6",
+              size: 86,
+              interval: 3.4,
+              moves: ["rail", "ring", "rail", "summon"],
+            },
           },
-          arena: {
-            name: "计时死斗",
-            waves: 1,
-            enemyScale: 1,
-            barrelScale: 1.18,
-            eliteScale: 1,
-            competitive: true,
-            respawn: true,
-            bots: 15,
-            time: 210,
-          },
-          elimination: {
-            name: "终局竞技",
-            waves: 1,
-            enemyScale: 1,
-            barrelScale: 1.08,
-            eliteScale: 1,
-            competitive: true,
-            elimination: true,
-            bots: 15,
-            time: 0,
-          },
-          storm: {
-            name: "风暴战线",
-            waves: 10,
-            enemyScale: 1.34,
-            barrelScale: 1.25,
-            eliteScale: 1.5,
+          {
+            name: "雷暴要塞",
+            floor: "#120d1c",
+            grid: "rgba(167, 139, 250, 0.09)",
+            accent: "#a78bfa",
+            segments: 7,
+            pool: [
+              "heavy",
+              "rocket",
+              "miner",
+              "shield",
+              "artillery",
+              "repair",
+              "turret",
+            ],
+            squad: 5,
+            elite: 1.35,
+            barrels: 1.2,
             storm: true,
+            boss: {
+              name: "蜂群母舰",
+              hp: 3200,
+              color: "#facc15",
+              size: 90,
+              interval: 3.1,
+              moves: ["summon", "ring", "fan", "barrage"],
+            },
           },
-          bossRush: {
-            name: "堡垒连战",
-            waves: 5,
-            enemyScale: 0.8,
-            barrelScale: 0.82,
-            eliteScale: 1.55,
-            bossRush: true,
-          },
-          endless: {
-            name: "无尽战区",
-            waves: 99,
-            enemyScale: 1.08,
-            barrelScale: 1.12,
-            eliteScale: 1.35,
-            endless: true,
+          {
+            name: "终焉核心",
+            floor: "#1a0a10",
+            grid: "rgba(255, 97, 120, 0.09)",
+            accent: "#ff6178",
+            segments: 8,
+            pool: [
+              "scout",
+              "heavy",
+              "rocket",
+              "miner",
+              "shield",
+              "artillery",
+              "repair",
+              "turret",
+            ],
+            squad: 5,
+            elite: 1.6,
+            barrels: 1.4,
             storm: true,
+            boss: {
+              name: "终焉要塞",
+              hp: 4400,
+              color: "#ff3355",
+              size: 96,
+              interval: 2.7,
+              moves: ["ring", "rail", "summon", "barrage", "fan", "mines"],
+            },
           },
-        };
+        ];
         const CHASSIS = {
           vanguard: {
             name: "先锋底盘",
@@ -1040,13 +1163,11 @@
             done: (s) => s.wins >= 6,
           },
           {
-            id: "modes6",
-            name: "全域部署",
-            text: "完成 6 种模式",
+            id: "clear5",
+            name: "终焉破关",
+            text: "通关五关战役",
             reward: 60,
-            done: (s) =>
-              Object.values(s.records || {}).filter((r) => r.wins > 0).length >=
-              6,
+            done: (s) => (s.records?.[MODE_KEY]?.wins || 0) > 0,
           },
         ];
         const ENEMY_TYPES = {
@@ -1122,6 +1243,17 @@
             color: "#70e0a0",
             size: 40,
             repair: true,
+          },
+          turret: {
+            name: "固定炮台",
+            hp: 86,
+            speed: 0,
+            reload: 1.5,
+            damage: 15,
+            score: 140,
+            color: "#e0a458",
+            size: 44,
+            turret: true,
           },
           boss: {
             name: "移动堡垒",
@@ -1340,34 +1472,197 @@
             },
           },
         ];
-        const BOT_NAMES = [
-          "青柠",
-          "赤焰",
-          "夜航",
-          "海盐",
-          "竹叶",
-          "北辰",
-          "琥珀",
-          "流星",
-          "薄荷",
-          "白桃",
-          "银杏",
-          "云雀",
-          "山竹",
-          "极光",
-          "乌龙",
+        const SHOP = [
+          {
+            id: "firepower",
+            group: "武器",
+            name: "主炮火力",
+            text: "炮弹伤害 +12%",
+            base: 6,
+            step: 4,
+            apply() {
+              player.damage *= 1.12;
+            },
+          },
+          {
+            id: "loader",
+            group: "武器",
+            name: "自动装填",
+            text: "开火间隔 -8%",
+            base: 7,
+            step: 5,
+            max: 10,
+            apply() {
+              player.reload *= 0.92;
+            },
+          },
+          {
+            id: "velocity",
+            group: "武器",
+            name: "线膛加速",
+            text: "弹速 +10%，反弹 +1",
+            base: 6,
+            step: 6,
+            max: 4,
+            apply() {
+              player.bulletSpeed *= 1.1;
+              player.bounces += 1;
+            },
+          },
+          {
+            id: "multi",
+            group: "武器",
+            name: "多联炮管",
+            text: "每次开火额外两枚侧射弹",
+            base: 14,
+            step: 10,
+            max: 3,
+            apply() {
+              player.scatter += 1;
+            },
+          },
+          {
+            id: "pierce",
+            group: "武器",
+            name: "钨芯穿甲",
+            text: "炮弹穿透 +1",
+            base: 10,
+            step: 8,
+            max: 4,
+            apply() {
+              player.pierce += 1;
+            },
+          },
+          {
+            id: "warhead",
+            group: "武器",
+            name: "高爆弹头",
+            text: "命中爆炸半径 +22",
+            base: 9,
+            step: 6,
+            max: 6,
+            apply() {
+              player.blast = player.blast > 0 ? player.blast + 22 : 56;
+            },
+          },
+          {
+            id: "drone",
+            group: "武器",
+            name: "僚机无人机",
+            text: "增加一架自动射击无人机",
+            base: 16,
+            step: 12,
+            max: 4,
+            apply() {
+              player.drones = Math.min(4, player.drones + 1);
+            },
+          },
+          {
+            id: "hull",
+            group: "防御",
+            name: "复合装甲",
+            text: "最大装甲 +28 并修复同等装甲",
+            base: 6,
+            step: 4,
+            apply() {
+              player.maxHp += 28;
+              healPlayer(28);
+            },
+          },
+          {
+            id: "shield",
+            group: "防御",
+            name: "能量护盾",
+            text: "护盾容量 +20%，回充 +15%",
+            base: 7,
+            step: 5,
+            apply() {
+              player.shieldMult += 0.2;
+              player.shieldRegen *= 1.15;
+              player.energyShield = maxEnergyShield(player);
+            },
+          },
+          {
+            id: "plating",
+            group: "防御",
+            name: "偏转装甲",
+            text: "受到伤害 -6%",
+            base: 10,
+            step: 7,
+            max: 6,
+            apply() {
+              player.damageReduce += 0.06;
+            },
+          },
+          {
+            id: "nanite",
+            group: "防御",
+            name: "纳米修复",
+            text: "脱战装甲回复 +3/秒",
+            base: 8,
+            step: 6,
+            max: 6,
+            apply() {
+              player.regen += 3;
+            },
+          },
+          {
+            id: "engine",
+            group: "机动",
+            name: "涡轮引擎",
+            text: "移动速度 +7%",
+            base: 6,
+            step: 5,
+            max: 6,
+            apply() {
+              player.speed *= 1.07;
+              player.turretTurn *= 1.06;
+            },
+          },
+          {
+            id: "capacitor",
+            group: "机动",
+            name: "技能电容",
+            text: "技能冷却 -10%",
+            base: 8,
+            step: 6,
+            max: 5,
+            apply() {
+              player.skillCooldown *= 0.9;
+            },
+          },
+          {
+            id: "repair",
+            group: "补给",
+            name: "紧急维修",
+            text: "立即回满装甲与护盾",
+            cost: () => 4 + game.stage * 2,
+            consumable: true,
+            apply() {
+              healPlayer(player.maxHp);
+              player.energyShield = maxEnergyShield(player);
+            },
+          },
+          {
+            id: "life",
+            group: "补给",
+            name: "备用车体",
+            text: "阵亡时原地重启一次",
+            base: 30,
+            step: 20,
+            max: 3,
+            apply() {
+              player.lives += 1;
+            },
+          },
         ];
 
         let dpr = 1;
         let view = { w: 0, h: 0 };
-        let camera = { x: WORLD / 2, y: WORLD / 2 };
-        let selectedMode = "campaign";
+        let camera = { x: 0, y: 0 };
         let selectedChassis = "vanguard";
         let selectedCannon = "cannon";
         let garageSave = loadGarage();
-        selectedMode = MODES[garageSave.loadout?.mode]
-          ? garageSave.loadout.mode
-          : selectedMode;
         selectedChassis = CHASSIS[garageSave.loadout?.chassis]
           ? garageSave.loadout.chassis
           : selectedChassis;
@@ -1391,8 +1686,8 @@
         let pointer = {
           x: window.innerWidth / 2,
           y: window.innerHeight / 2,
-          worldX: WORLD / 2,
-          worldY: WORLD / 2,
+          worldX: 0,
+          worldY: 0,
           down: false,
         };
         let touchMove = { active: false, id: null, x: 0, y: 0, dx: 0, dy: 0 };
@@ -1420,7 +1715,6 @@
             milestones: {},
             mastery: { chassis: {}, cannon: {} },
             loadout: {
-              mode: "campaign",
               chassis: "vanguard",
               cannon: "cannon",
             },
@@ -1453,7 +1747,6 @@
         function saveGarage() {
           garageSave.version = 3;
           garageSave.loadout = {
-            mode: selectedMode,
             chassis: selectedChassis,
             cannon: selectedCannon,
           };
@@ -1496,21 +1789,12 @@
             throw new Error("不是霓虹装甲存档");
           localStorage.setItem(TANK_SAVE_KEY, JSON.stringify(parsed.data));
           garageSave = loadGarage();
-          selectedMode = MODES[garageSave.loadout.mode]
-            ? garageSave.loadout.mode
-            : "campaign";
           selectedChassis = CHASSIS[garageSave.loadout.chassis]
             ? garageSave.loadout.chassis
             : "vanguard";
           selectedCannon = CANNONS[garageSave.loadout.cannon]
             ? garageSave.loadout.cannon
             : "cannon";
-          modeButtons.forEach((button) =>
-            button.classList.toggle(
-              "active",
-              button.dataset.mode === selectedMode,
-            ),
-          );
           saveGarage();
           renderGarage();
         }
@@ -1555,7 +1839,7 @@
               return `<div class="career-chip ${done ? "done" : ""}"><b>${done ? "✓ " : ""}${item.name}</b>${item.text} · ${done ? "已领取" : `军功 ${item.reward}`}</div>`;
             }),
             `<div class="career-chip"><b>战役胜场</b>${garageSave.wins || 0} 胜</div>`,
-            `<div class="career-chip"><b>模式完成</b>${Object.values(garageSave.records || {}).filter((r) => r.wins > 0).length}/${Object.keys(MODES).length}</div>`,
+            `<div class="career-chip"><b>最远关卡</b>${garageSave.records?.[MODE_KEY]?.stage || 0}/${STAGES.length}</div>`,
             `<div class="career-chip"><b>底盘熟练</b>${garageSave.mastery?.chassis?.[selectedChassis] || 0} 次部署</div>`,
             `<div class="career-chip"><b>主炮熟练</b>${garageSave.mastery?.cannon?.[selectedCannon] || 0} 次部署</div>`,
           ].join("");
@@ -1634,20 +1918,16 @@
           return clamp(Math.min(view.w, view.h) / 850, 0.62, 1.08);
         }
 
-        function modeConfig() {
-          return MODES[game.mode || selectedMode] || MODES.campaign;
+        function stageConfig() {
+          return STAGES[clamp((game.stage || 1) - 1, 0, STAGES.length - 1)];
         }
 
-        function isCompetitiveMode() {
-          return Boolean(modeConfig().competitive);
+        function stageLevel() {
+          return 1 + ((game.stage || 1) - 1) * 1.6;
         }
 
-        function isRespawnMode() {
-          return Boolean(modeConfig().respawn);
-        }
-
-        function isEliminationMode() {
-          return Boolean(modeConfig().elimination);
+        function irand(min, max) {
+          return Math.floor(rand(min, max + 1));
         }
 
         function showToast(text) {
@@ -1658,8 +1938,8 @@
 
         function makePlayer() {
           const tank = {
-            x: WORLD / 2,
-            y: WORLD / 2,
+            x: WORLD_W / 2,
+            y: WORLD_H - TILE * 2.5,
             vx: 0,
             vy: 0,
             bodyAngle: -Math.PI / 2,
@@ -1695,6 +1975,12 @@
             blast: 0,
             chassis: selectedChassis,
             cannon: selectedCannon,
+            shieldMult: 1,
+            shieldRegen: SHIELD_REGEN_RATE,
+            regen: 0,
+            damageReduce: 0,
+            lives: 1,
+            upgrades: {},
           };
           const chassis = CHASSIS[selectedChassis];
           const cannon = CANNONS[selectedCannon];
@@ -1731,169 +2017,322 @@
         const HP_REGEN_RATE = 4;
 
         function maxEnergyShield(tank) {
-          return Math.round(tank.maxHp * 0.45);
+          return Math.round(tank.maxHp * 0.45 * (tank.shieldMult || 1));
         }
 
         function newGame() {
-          const config = MODES[selectedMode];
           game = {
-            mode: selectedMode,
-            wave: 1,
-            maxWave: config.waves,
+            stage: 1,
+            maxStage: STAGES.length,
             score: 0,
             best: garageSave.best || 0,
             state: "playing",
-            waveClearTimer: 0,
-            arenaTime: config.time || 0,
-            pickupTimer: 0,
-            eventTimer: config.storm ? 12 : 28,
-            eventCount: 0,
-            eliminatedRank: 0,
-            result: "",
+            bossKills: 0,
           };
           player = makePlayer();
+          drones = [];
+          overlay.classList.add("hidden");
+          upgradeOverlay.classList.add("hidden");
+          pauseBtn.textContent = "Ⅱ";
+          pointer.down = false;
+          loadStage();
+        }
+
+        function loadStage() {
+          const stage = stageConfig();
+          enemies = [];
           bullets = [];
           mines = [];
           explosions = [];
           particles = [];
           floaters = [];
           parts = [];
-          drones = [];
           airstrikes = [];
-          generateArena();
-          if (config.competitive) startCompetitiveMatch();
-          else spawnWave();
-          overlay.classList.add("hidden");
-          upgradeOverlay.classList.add("hidden");
-          showToast(
-            config.competitive
-              ? `${config.name}开始`
-              : `${MODES[selectedMode].name} - 第 1 波`,
-          );
+          generateStage();
+          player.x = WORLD_W / 2;
+          player.y = WORLD_H - TILE * 2.5;
+          player.vx = 0;
+          player.vy = 0;
+          player.bodyAngle = -Math.PI / 2;
+          player.turretAngle = -Math.PI / 2;
+          player.energyShield = maxEnergyShield(player);
+          player.reloadLeft = 0;
+          player.skillLeft = 0;
+          Object.assign(game, {
+            state: "playing",
+            bossActive: false,
+            bossDefeated: false,
+            clearTimer: 0,
+            eventTimer: stage.storm ? 14 : 26,
+            eventCount: 0,
+          });
+          camera.x = player.x;
+          camera.y = player.y;
+          updateCamera(1);
+          showToast(`第 ${game.stage} 关 · ${stage.name}：向北推进，击毁关底首领`);
           updateHud(true);
         }
 
-        function generateArena() {
+        function cellX(col) {
+          return col * TILE + TILE / 2;
+        }
+
+        function cellY(row) {
+          return row * TILE + TILE / 2;
+        }
+
+        // Cell codes: 0 empty, 1 brick, 2 steel, 3 barrel, 4 turret slot.
+        function generateStage() {
+          const stage = stageConfig();
+          ROWS = GATE_ROW + 2 + stage.segments * SEGMENT_ROWS + 6;
+          WORLD_H = ROWS * TILE;
+          let grid = null;
+          for (let attempt = 0; attempt < 30 && !grid; attempt++) {
+            const candidate = buildStageGrid(stage);
+            if (stageReachable(candidate)) grid = candidate;
+          }
+          if (!grid) {
+            grid = buildStageGrid(stage);
+            for (let r = GATE_ROW + 1; r < ROWS; r++)
+              for (let c = 0; c < COLS; c++) if (grid[r][c] === 2) grid[r][c] = 1;
+          }
           walls = [];
           barrels = [];
-          const center = { x: WORLD / 2, y: WORLD / 2 };
-          const config = MODES[selectedMode];
-          const addWall = (gx, gy, type, w = TILE, h = TILE) => {
-            walls.push(
-              makeWall(center.x + gx * TILE, center.y + gy * TILE, w, h, type),
-            );
-          };
-          const mirrorWall = (gx, gy, type, w = TILE, h = TILE) => {
-            const points = [
-              [gx, gy],
-              [-gx, gy],
-              [gx, -gy],
-              [-gx, -gy],
-            ];
-            const seen = new Set();
-            for (const [x, y] of points) {
-              const key = `${x},${y}`;
-              if (!seen.has(key)) {
-                seen.add(key);
-                addWall(x, y, type, w, h);
-              }
-            }
-          };
-          const addBarrel = (gx, gy) => {
-            barrels.push({
-              x: center.x + gx * TILE,
-              y: center.y + gy * TILE,
-              r: 20,
-              hp: 24,
-              alive: true,
-            });
-          };
-          const mirrorBarrel = (gx, gy) => {
-            const points = [
-              [gx, gy],
-              [-gx, gy],
-              [gx, -gy],
-              [-gx, -gy],
-            ];
-            const seen = new Set();
-            for (const [x, y] of points) {
-              const key = `${x},${y}`;
-              if (!seen.has(key)) {
-                seen.add(key);
-                addBarrel(x, y);
-              }
-            }
-          };
-
-          for (let i = -11; i <= 11; i++) {
-            if (Math.abs(i) % 4 !== 1) {
-              addWall(i, -14, "steel");
-              addWall(i, 14, "steel");
-              addWall(-14, i, "steel");
-              addWall(14, i, "steel");
+          for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+              const cell = grid[r][c];
+              if (cell === 1 || cell === 2)
+                walls.push(
+                  makeWall(
+                    cellX(c),
+                    cellY(r),
+                    TILE,
+                    TILE,
+                    cell === 2 ? "steel" : "brick",
+                  ),
+                );
+              else if (cell === 3)
+                barrels.push({
+                  x: cellX(c),
+                  y: cellY(r),
+                  r: 20,
+                  hp: 24,
+                  alive: true,
+                });
             }
           }
+          wallsDirty = true;
+          game.gateY = GATE_ROW * TILE;
+          populateStage(grid, stage);
+        }
 
-          for (const x of [-7, -6, -5, 5, 6, 7]) {
-            addWall(x, -4, "brick");
-            addWall(x, 4, "brick");
-            addWall(-4, x, "brick");
-            addWall(4, x, "brick");
-          }
-          for (const x of [-11, -10, 10, 11]) {
-            mirrorWall(x, 0, "steel");
-            mirrorWall(0, x, "steel");
-          }
-          for (const p of [
-            [-9, -7],
-            [-8, -7],
-            [-7, -7],
-            [-9, -6],
-            [-6, -9],
-            [-6, -8],
-            [-6, -7],
-          ]) {
-            mirrorWall(p[0], p[1], "brick");
-          }
-          for (const p of [
-            [-3, -9],
-            [-2, -9],
-            [2, -9],
-            [3, -9],
-            [-9, -3],
-            [-9, -2],
-            [-9, 2],
-            [-9, 3],
-          ]) {
-            mirrorWall(p[0], p[1], "brick");
-          }
-          for (const p of [
-            [-2, -2],
-            [2, -2],
-            [-2, 2],
-            [2, 2],
-          ]) {
-            addWall(p[0], p[1], "steel");
-          }
+        function setCell(grid, r, c, value) {
+          if (r >= 0 && r < ROWS && c >= 0 && c < COLS) grid[r][c] = value;
+        }
 
-          const extraBrick = config.competitive ? 18 : 28;
-          for (let i = 0; i < extraBrick; i++) {
-            const gx = Math.round(rand(-12, 12));
-            const gy = Math.round(rand(-12, 12));
-            if (Math.abs(gx) < 3 && Math.abs(gy) < 3) continue;
-            if (gx % 4 === 0 || gy % 4 === 0) continue;
-            addWall(gx, gy, "brick");
-          }
-          const barrelCount = Math.round(
-            (config.competitive ? 8 : 12) * config.barrelScale,
+        function buildStageGrid(stage) {
+          const grid = Array.from({ length: ROWS }, () =>
+            new Array(COLS).fill(0),
           );
-          for (let i = 0; i < barrelCount; i++) {
-            const gx = Math.round(rand(-11, 11));
-            const gy = Math.round(rand(-11, 11));
-            if (Math.abs(gx) < 4 && Math.abs(gy) < 4) continue;
-            mirrorBarrel(gx, gy);
-            i += 3;
+          for (const [r, c] of [
+            [5, 3],
+            [6, 3],
+            [10, 6],
+            [10, 7],
+          ]) {
+            setCell(grid, r, c, 2);
+            setCell(grid, r, COLS - 1 - c, 2);
           }
+          for (let i = 0; i < 4; i++) {
+            const r = irand(7, 12);
+            const c = irand(2, 8);
+            if (!grid[r][c]) {
+              setCell(grid, r, c, 1);
+              setCell(grid, r, COLS - 1 - c, 1);
+            }
+          }
+          for (let c = 0; c < COLS; c++)
+            grid[GATE_ROW][c] = c >= GATE_GAP[0] && c <= GATE_GAP[1] ? 0 : 2;
+
+          const templates = [
+            "barricade",
+            "pillars",
+            "maze",
+            "canyon",
+            "bunker",
+            "field",
+          ];
+          let last = "";
+          for (let s = 0; s < stage.segments; s++) {
+            const top = GATE_ROW + 2 + s * SEGMENT_ROWS;
+            let kind = templates[irand(0, templates.length - 1)];
+            if (kind === last)
+              kind = templates[(templates.indexOf(kind) + 1) % templates.length];
+            last = kind;
+            buildSegment(grid, kind, top);
+          }
+          const barrelCount = Math.round(stage.segments * 1.6 * stage.barrels);
+          for (let i = 0; i < barrelCount; i++) {
+            const r = irand(GATE_ROW + 2, ROWS - 8);
+            const c = irand(1, COLS - 2);
+            if (!grid[r][c]) grid[r][c] = 3;
+          }
+          return grid;
+        }
+
+        function buildSegment(grid, kind, top) {
+          const scatterBricks = (count) => {
+            for (let i = 0; i < count; i++)
+              setCell(grid, top + irand(0, 9), irand(1, COLS - 2), 1);
+          };
+          if (kind === "barricade") {
+            const row = top + irand(3, 6);
+            const gaps = [];
+            for (let g = irand(1, 2); g > 0; g--) gaps.push(irand(2, COLS - 5));
+            for (let c = 0; c < COLS; c++) {
+              if (gaps.some((g) => c >= g && c < g + 3)) continue;
+              setCell(grid, row, c, Math.random() < 0.45 ? 1 : 2);
+            }
+            scatterBricks(6);
+          } else if (kind === "pillars") {
+            for (let i = irand(4, 6); i > 0; i--) {
+              const r = top + irand(0, 8);
+              const c = irand(1, COLS - 3);
+              setCell(grid, r, c, 2);
+              setCell(grid, r + 1, c, 2);
+              setCell(grid, r, c + 1, 2);
+              setCell(grid, r + 1, c + 1, 2);
+            }
+            scatterBricks(5);
+          } else if (kind === "maze") {
+            for (let i = irand(5, 7); i > 0; i--) {
+              const w = irand(2, 4);
+              const h = irand(1, 3);
+              const r0 = top + irand(0, 9 - h);
+              const c0 = irand(1, COLS - 1 - w);
+              for (let r = r0; r < r0 + h; r++)
+                for (let c = c0; c < c0 + w; c++) setCell(grid, r, c, 1);
+            }
+          } else if (kind === "canyon") {
+            const left = irand(3, 6);
+            const right = irand(3, 6);
+            for (let r = top + 1; r <= top + 8; r++) {
+              const wobble = r % 3 === 0 ? 1 : 0;
+              for (let c = 0; c < left - wobble; c++) setCell(grid, r, c, 2);
+              for (let c = COLS - right + wobble; c < COLS; c++)
+                setCell(grid, r, c, 2);
+            }
+            for (let i = 0; i < 4; i++)
+              setCell(
+                grid,
+                top + irand(2, 7),
+                irand(left + 1, COLS - right - 2),
+                1,
+              );
+          } else if (kind === "bunker") {
+            const c0 = irand(3, COLS - 10);
+            const r0 = top + irand(1, 3);
+            const w = 7;
+            const h = 5;
+            for (let c = c0; c < c0 + w; c++) setCell(grid, r0, c, 1);
+            for (let r = r0; r < r0 + h; r++) {
+              setCell(grid, r, c0, 1);
+              setCell(grid, r, c0 + w - 1, 1);
+            }
+            scatterBricks(4);
+            setCell(grid, r0 + 2, c0 + 3, 4);
+          } else {
+            scatterBricks(10);
+            for (let i = 0; i < 3; i++) {
+              const r = top + irand(0, 9);
+              const c = irand(1, COLS - 2);
+              if (!grid[r][c]) grid[r][c] = 3;
+            }
+          }
+        }
+
+        // Bricks and barrels can be destroyed, so only steel blocks the route.
+        function stageReachable(grid) {
+          const seen = Array.from({ length: ROWS }, () =>
+            new Array(COLS).fill(false),
+          );
+          const queue = [[ROWS - 3, Math.floor(COLS / 2)]];
+          seen[ROWS - 3][Math.floor(COLS / 2)] = true;
+          while (queue.length) {
+            const [r, c] = queue.shift();
+            if (r === GATE_ROW) return true;
+            for (const [dr, dc] of [
+              [1, 0],
+              [-1, 0],
+              [0, 1],
+              [0, -1],
+            ]) {
+              const nr = r + dr;
+              const nc = c + dc;
+              if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) continue;
+              if (seen[nr][nc] || grid[nr][nc] === 2) continue;
+              seen[nr][nc] = true;
+              queue.push([nr, nc]);
+            }
+          }
+          return false;
+        }
+
+        function neighborsClear(grid, r, c) {
+          for (let dr = -1; dr <= 1; dr++)
+            for (let dc = -1; dc <= 1; dc++) {
+              const cell = grid[r + dr]?.[c + dc];
+              if (cell === 1 || cell === 2 || cell === 3) return false;
+            }
+          return true;
+        }
+
+        function populateStage(grid, stage) {
+          const level = stageLevel();
+          for (let s = 0; s < stage.segments; s++) {
+            const top = GATE_ROW + 2 + s * SEGMENT_ROWS;
+            const squad = s + 1;
+            const count =
+              stage.squad +
+              irand(0, 1) +
+              (s >= stage.segments - 2 ? 1 : 0);
+            const free = [];
+            // Keep the spawn pad out of the wake radius so the run never opens under fire.
+            for (let r = top; r < Math.min(top + SEGMENT_ROWS, ROWS - 12); r++) {
+              for (let c = 1; c < COLS - 1; c++) {
+                if (grid[r][c] === 4) {
+                  spawnEnemy("turret", cellX(c), cellY(r), level).squad = squad;
+                  grid[r][c] = 0;
+                } else if (grid[r][c] === 0 && neighborsClear(grid, r, c)) {
+                  free.push([r, c]);
+                }
+              }
+            }
+            for (let i = 0; i < count && free.length; i++) {
+              const [r, c] = free.splice(irand(0, free.length - 1), 1)[0];
+              const type = stage.pool[irand(0, stage.pool.length - 1)];
+              spawnEnemy(type, cellX(c), cellY(r), level).squad = squad;
+            }
+          }
+          const spec = stage.boss;
+          const boss = spawnEnemy("boss", WORLD_W / 2, cellY(4), level);
+          Object.assign(boss, {
+            name: spec.name,
+            hp: spec.hp,
+            maxHp: spec.hp,
+            size: spec.size,
+            color: spec.color,
+            damage: 20 + game.stage * 4,
+            reload: Math.max(0.6, 1 - game.stage * 0.06),
+            speed: 54 + game.stage * 4,
+            score: 1200 + game.stage * 600,
+            bodyAngle: Math.PI / 2,
+            turretAngle: Math.PI / 2,
+            spec,
+            specialTimer: 2.5,
+            specialIndex: 0,
+          });
+          game.boss = boss;
         }
 
         function makeWall(x, y, w, h, type) {
@@ -1908,95 +2347,22 @@
           };
         }
 
-        function spawnWave() {
-          enemies = [];
-          bullets = bullets.filter((bullet) => bullet.owner === "player");
-          mines = [];
-          const config = MODES[selectedMode];
-          const bossWave =
-            config.bossRush ||
-            (config.endless && game.wave % 8 === 0) ||
-            game.wave === game.maxWave;
-          if (bossWave) {
-            const boss = spawnEnemy("boss", WORLD / 2, 280, game.wave);
-            if (config.bossRush) boss.name = `移动堡垒 MK-${game.wave}`;
-            for (let i = 0; i < (config.bossRush ? 3 + game.wave : 5); i++)
-              spawnEnemy(i % 2 ? "heavy" : "rocket", 0, 0, game.wave);
-          } else {
-            const count = Math.round(
-              (5 + game.wave * 1.35) * config.enemyScale,
-            );
-            for (let i = 0; i < count; i++) {
-              let type = "scout";
-              if (game.wave > 1 && Math.random() < 0.3) type = "heavy";
-              if (game.wave > 2 && Math.random() < 0.25) type = "rocket";
-              if (game.wave > 3 && Math.random() < 0.18) type = "miner";
-              if (game.wave > 4 && Math.random() < 0.16) type = "shield";
-              if (game.wave > 5 && Math.random() < 0.13) type = "artillery";
-              if (game.wave > 6 && Math.random() < 0.12) type = "repair";
-              spawnEnemy(type, 0, 0, game.wave);
-            }
-          }
-          objectiveValue.textContent = bossWave ? "击毁堡垒" : "清空敌军";
-        }
-
-        function startCompetitiveMatch() {
-          const config = modeConfig();
-          enemies = [];
-          bullets = [];
-          mines = [];
-          parts = [];
-          player.x = WORLD / 2;
-          player.y = WORLD / 2;
-          player.hp = player.maxHp;
-          player.energyShield = maxEnergyShield(player);
-          player.score = 0;
-          player.scrap = 0;
-          player.parts = [];
-          player.kills = 0;
-          player.deaths = 0;
-          for (let i = 0; i < config.bots; i++) {
-            const type =
-              i % 5 === 0
-                ? "heavy"
-                : i % 4 === 0
-                  ? "rocket"
-                  : i % 3 === 0
-                    ? "miner"
-                    : "scout";
-            const bot = spawnEnemy(type, 0, 0, 3);
-            bot.name = BOT_NAMES[i] || `AI-${i + 1}`;
-            bot.arena = true;
-            bot.points = 0;
-            bot.scrap = 0;
-            bot.kills = 0;
-            bot.deaths = 0;
-            bot.parts = [];
-          }
-          spawnInitialPickups(config.elimination ? 18 : 22);
-          objectiveValue.textContent = config.elimination
-            ? "最后存活者第一"
-            : "限时击毁抢分";
-        }
-
-        function spawnEnemy(type, x, y, wave) {
+        function spawnEnemy(type, x, y, level) {
           const spec = ENEMY_TYPES[type];
-          let point = x && y ? { x, y } : randomSpawnPoint();
           const elite =
             type !== "boss" &&
-            Math.random() <
-              Math.min(0.24, 0.035 * wave * MODES[selectedMode].eliteScale);
-          const hpScale = (1 + wave * 0.12) * (elite ? 1.55 : 1);
+            Math.random() < Math.min(0.3, 0.035 * level * stageConfig().elite);
+          const hpScale = (1 + level * 0.12) * (elite ? 1.55 : 1);
           const enemy = {
             id: Math.random(),
             type,
             name: elite ? `精英${spec.name}` : spec.name,
-            x: point.x,
-            y: point.y,
+            x,
+            y,
             vx: 0,
             vy: 0,
-            bodyAngle: rand(0, Math.PI * 2),
-            turretAngle: rand(0, Math.PI * 2),
+            bodyAngle: spec.turret ? Math.PI / 2 : rand(0, Math.PI * 2),
+            turretAngle: Math.PI / 2 + rand(-0.6, 0.6),
             size: spec.size * (elite ? 1.1 : 1),
             hp: spec.hp * hpScale,
             maxHp: spec.hp * hpScale,
@@ -2011,46 +2377,62 @@
             frontArmor: spec.frontArmor || 0,
             artillery: Boolean(spec.artillery),
             repair: Boolean(spec.repair),
+            turret: Boolean(spec.turret),
             repairTimer: rand(2, 4),
             phaseTwo: false,
+            dormant: true,
+            squad: 0,
             elite,
           };
           enemies.push(enemy);
           return enemy;
         }
 
-        function randomSpawnPoint() {
-          for (let i = 0; i < 300; i++) {
-            const side = Math.floor(Math.random() * 4);
-            const margin = 160;
-            const point = {
-              x:
-                side === 0
-                  ? margin
-                  : side === 1
-                    ? WORLD - margin
-                    : rand(margin, WORLD - margin),
-              y:
-                side === 2
-                  ? margin
-                  : side === 3
-                    ? WORLD - margin
-                    : rand(margin, WORLD - margin),
-            };
-            if (
-              distance(point, player) > 660 &&
-              !circleHitsWall(point.x, point.y, 34)
-            )
-              return point;
+        function spawnNear(type, cx, cy, radius) {
+          for (let i = 0; i < 40; i++) {
+            const a = rand(0, Math.PI * 2);
+            const d = rand(radius * 0.5, radius * 1.4);
+            const x = cx + Math.cos(a) * d;
+            const y = cy + Math.sin(a) * d;
+            if (x < 60 || x > WORLD_W - 60 || y < 60 || y > WORLD_H - 60)
+              continue;
+            if (game.bossActive && y > game.gateY - 50) continue;
+            if (circleHitsWall(x, y, 30)) continue;
+            const enemy = spawnEnemy(type, x, y, stageLevel());
+            enemy.dormant = false;
+            return enemy;
           }
-          return { x: rand(180, WORLD - 180), y: rand(180, WORLD - 180) };
+          return null;
+        }
+
+        let wallRows = [];
+        let wallsDirty = true;
+
+        function rowWalls(row) {
+          if (wallsDirty) {
+            wallRows = [];
+            for (const wall of walls) {
+              const r = Math.floor(wall.y / TILE);
+              (wallRows[r] || (wallRows[r] = [])).push(wall);
+            }
+            wallsDirty = false;
+          }
+          return wallRows[row];
+        }
+
+        function wallAt(x, y, r) {
+          const r0 = Math.floor((y - r) / TILE) - 1;
+          const r1 = Math.floor((y + r) / TILE) + 1;
+          for (let row = r0; row <= r1; row++) {
+            const list = rowWalls(row);
+            if (!list) continue;
+            for (const wall of list) if (circleRectHit(x, y, r, wall)) return wall;
+          }
+          return null;
         }
 
         function circleHitsWall(x, y, r) {
-          for (const wall of walls) {
-            if (circleRectHit(x, y, r, wall)) return true;
-          }
-          return false;
+          return Boolean(wallAt(x, y, r));
         }
 
         function circleRectHit(cx, cy, r, rect) {
@@ -2062,7 +2444,7 @@
         }
 
         function moveCircle(entity, dx, dy, radius) {
-          let nx = clamp(entity.x + dx, radius, WORLD - radius);
+          let nx = clamp(entity.x + dx, radius, WORLD_W - radius);
           let ny = entity.y;
           if (!circleHitsWall(nx, ny, radius)) {
             entity.x = nx;
@@ -2070,7 +2452,7 @@
             entity.vx *= -0.12;
           }
           nx = entity.x;
-          ny = clamp(entity.y + dy, radius, WORLD - radius);
+          ny = clamp(entity.y + dy, radius, WORLD_H - radius);
           if (!circleHitsWall(nx, ny, radius)) {
             entity.y = ny;
           } else {
@@ -2249,8 +2631,7 @@
           updateExplosions(dt);
           updateEffects(dt);
           updateCamera(dt);
-          if (isCompetitiveMode()) checkCompetitive(dt);
-          else checkWave(dt);
+          checkStage(dt);
           hudTimer -= dt;
           if (hudTimer <= 0) {
             updateHud(false);
@@ -2260,10 +2641,32 @@
             toastTimer -= dt;
             if (toastTimer <= 0) toast.classList.remove("show");
           }
-          if (player.hp <= 0) {
-            if (isRespawnMode()) respawnPlayer();
+          if (player.hp <= 0 && game.state === "playing") {
+            if (player.lives > 0) revivePlayer();
             else endGame(false);
           }
+        }
+
+        function revivePlayer() {
+          player.lives -= 1;
+          player.hp = player.maxHp;
+          player.energyShield = maxEnergyShield(player);
+          player.shieldUntil = performance.now() / 1000 + 3;
+          bullets = bullets.filter((bullet) => bullet.owner === "player");
+          explosions.push({
+            x: player.x,
+            y: player.y,
+            r: 24,
+            max: 300,
+            life: 0.45,
+            damage: 60,
+            owner: "player",
+            color: "#38d9ff",
+            ownerTank: player,
+          });
+          burst(player.x, player.y, "#38d9ff", 46);
+          shake(12);
+          showToast(`备用车体启动，剩余 ${player.lives}`);
         }
 
         function updatePlayer(dt) {
@@ -2320,9 +2723,10 @@
             if (sinceHit > SHIELD_REGEN_DELAY)
               player.energyShield = Math.min(
                 maxEnergyShield(player),
-                player.energyShield + SHIELD_REGEN_RATE * dt,
+                player.energyShield + player.shieldRegen * dt,
               );
-            if (sinceHit > HP_REGEN_DELAY) healPlayer(HP_REGEN_RATE * dt);
+            if (sinceHit > HP_REGEN_DELAY)
+              healPlayer((HP_REGEN_RATE + player.regen) * dt);
           }
         }
 
@@ -2341,42 +2745,34 @@
             drone.x = player.x + Math.cos(drone.angle) * 82;
             drone.y = player.y + Math.sin(drone.angle) * 82;
             drone.reload -= dt;
-            if (drone.reload <= 0 && enemies.length) {
-              const target = enemies.reduce((best, enemy) => {
-                const score = enemy.hp + distance(drone, enemy) * 0.18;
-                return !best || score < best.score ? { enemy, score } : best;
-              }, null).enemy;
-              if (distance(drone, target) < 760) {
-                const angle = Math.atan2(
-                  target.y - drone.y,
-                  target.x - drone.x,
-                );
-                fireBullet("player", drone.x, drone.y, angle, {
-                  damage: player.damage * 0.36,
-                  bounces: 0,
-                  speed: player.bulletSpeed * 1.12,
-                  color: "#4ade80",
-                  size: 4,
-                  life: 1.2,
-                  ownerTank: player,
-                });
-                drone.reload = 0.62;
+            if (drone.reload > 0) continue;
+            let target = null;
+            let best = Infinity;
+            for (const enemy of enemies) {
+              if (enemy.dormant) continue;
+              const score = enemy.hp + distance(drone, enemy) * 0.18;
+              if (score < best) {
+                best = score;
+                target = enemy;
               }
+            }
+            if (target && distance(drone, target) < 760) {
+              const angle = Math.atan2(target.y - drone.y, target.x - drone.x);
+              fireBullet("player", drone.x, drone.y, angle, {
+                damage: player.damage * 0.36,
+                bounces: 0,
+                speed: player.bulletSpeed * 1.12,
+                color: "#4ade80",
+                size: 4,
+                life: 1.2,
+                ownerTank: player,
+              });
+              drone.reload = 0.62;
             }
           }
         }
 
         function updateParts(dt) {
-          if (isCompetitiveMode()) {
-            game.pickupTimer -= dt;
-            const targetCount = isEliminationMode() ? 20 : 26;
-            if (game.pickupTimer <= 0 && parts.length < targetCount) {
-              spawnRandomPickup();
-              game.pickupTimer = isEliminationMode()
-                ? rand(7, 11)
-                : rand(4.5, 7);
-            }
-          }
           for (let i = parts.length - 1; i >= 0; i--) {
             const part = parts[i];
             part.life -= dt;
@@ -2392,15 +2788,7 @@
               part.y += n.y * pull;
             }
             if (distance(player, part) < 42 && player.hp > 0) {
-              collectPickup(player, part);
-              parts.splice(i, 1);
-              continue;
-            }
-            const bot = isCompetitiveMode()
-              ? enemies.find((enemy) => distance(enemy, part) < 40)
-              : null;
-            if (bot) {
-              collectPickup(bot, part);
+              collectPickup(part);
               parts.splice(i, 1);
               continue;
             }
@@ -2408,39 +2796,47 @@
           }
         }
 
+        function callAirstrike(x, y, r, owner) {
+          airstrikes.push({
+            x,
+            y,
+            r,
+            owner: owner || "neutral",
+            warning: 1.7,
+            life: 2.2,
+            exploded: false,
+          });
+        }
+
         function updateBattleEvents(dt) {
-          if (!isCompetitiveMode()) {
+          const stage = stageConfig();
+          if (!game.bossDefeated) {
             game.eventTimer -= dt;
             if (game.eventTimer <= 0) {
               game.eventCount += 1;
-              const barrage = game.eventCount % 2 === 0 || modeConfig().storm;
-              if (barrage) {
-                const count = modeConfig().storm ? 5 : 3;
-                for (let i = 0; i < count; i++) {
-                  airstrikes.push({
-                    x: clamp(player.x + rand(-520, 520), 100, WORLD - 100),
-                    y: clamp(player.y + rand(-420, 420), 100, WORLD - 100),
-                    r: rand(72, 118),
-                    warning: 1.7,
-                    life: 2.2,
-                    exploded: false,
-                  });
-                }
+              const minY = game.bossActive ? 80 : game.gateY + TILE * 1.5;
+              const maxY = game.bossActive ? game.gateY - 60 : WORLD_H - 100;
+              if (game.eventCount % 2 === 0 || stage.storm) {
+                for (let i = 0; i < (stage.storm ? 4 : 3); i++)
+                  callAirstrike(
+                    clamp(player.x + rand(-520, 520), 100, WORLD_W - 100),
+                    clamp(player.y + rand(-420, 300), minY, maxY),
+                    rand(72, 118),
+                  );
                 showToast("空袭坐标已标记");
               } else {
                 for (let i = 0; i < 4; i++)
                   parts.push(
                     makePickup(
-                      clamp(player.x + rand(-240, 240), 80, WORLD - 80),
-                      clamp(player.y + rand(-190, 190), 80, WORLD - 80),
-                      i === 0 ? "module" : null,
+                      clamp(player.x + rand(-240, 240), 80, WORLD_W - 80),
+                      clamp(player.y + rand(-190, 190), minY, maxY),
+                      i === 0 ? "module" : i === 1 ? "repair" : "scrap",
+                      2 + game.stage,
                     ),
                   );
                 showToast("战术补给已投放");
               }
-              game.eventTimer = modeConfig().storm
-                ? rand(15, 21)
-                : rand(26, 36);
+              game.eventTimer = stage.storm ? rand(16, 22) : rand(26, 36);
             }
           }
           for (const strike of airstrikes) {
@@ -2455,7 +2851,7 @@
                 max: strike.r * 1.45,
                 life: 0.38,
                 damage: 78,
-                owner: "neutral",
+                owner: strike.owner,
                 color: "#ff8b5f",
               });
               burst(strike.x, strike.y, "#ff8b5f", 34);
@@ -2464,109 +2860,115 @@
           airstrikes = airstrikes.filter((strike) => strike.life > 0);
         }
 
-        function dropParts(x, y, count) {
-          if (!isCompetitiveMode() && Math.random() > 0.35) return;
-          for (let i = 0; i < count; i++) {
+        function dropLoot(enemy) {
+          const drop = (kind, value) => {
             const a = rand(0, Math.PI * 2);
-            const r = rand(12, 54);
+            const r = rand(10, 52);
             parts.push(
               makePickup(
-                x + Math.cos(a) * r,
-                y + Math.sin(a) * r,
-                i === 0 ? "module" : null,
+                enemy.x + Math.cos(a) * r,
+                enemy.y + Math.sin(a) * r,
+                kind,
+                value,
               ),
             );
-          }
-        }
-
-        function spawnInitialPickups(count) {
-          for (let i = 0; i < count; i++)
-            spawnRandomPickup(i % 3 === 0 ? "module" : null);
-          game.pickupTimer = rand(4, 7);
-        }
-
-        function spawnRandomPickup(forcedKind) {
-          for (let i = 0; i < 120; i++) {
-            const point = {
-              x: rand(180, WORLD - 180),
-              y: rand(180, WORLD - 180),
-            };
-            if (
-              distance(point, player) < 220 ||
-              circleHitsWall(point.x, point.y, 26)
-            )
-              continue;
-            parts.push(makePickup(point.x, point.y, forcedKind));
+          };
+          if (enemy === game.boss) {
+            drop("repair");
+            drop("shield");
+            drop("module");
+            drop("module");
             return;
           }
+          let value = Math.round(
+            (Math.max(1, Math.round(enemy.score / 90)) + (enemy.elite ? 2 : 0)) *
+              (1 + (game.stage - 1) * 0.25),
+          );
+          for (let coins = Math.min(3, value); coins > 0; coins--) {
+            const share = Math.ceil(value / coins);
+            value -= share;
+            drop("scrap", share);
+          }
+          const roll = Math.random();
+          if (roll < 0.1) drop("repair");
+          else if (roll < 0.16) drop("shield");
+          else if (roll < (enemy.elite ? 0.5 : 0.22)) drop("module");
         }
 
-        function makePickup(x, y, forcedKind) {
+        function makePickup(x, y, forcedKind, value) {
           const roll = Math.random();
           const kind =
             forcedKind ||
             (roll < 0.58 ? "module" : roll < 0.8 ? "repair" : "shield");
-          const module = kind === "module" ? randomPart() : null;
           return {
             x,
             y,
             kind,
-            module,
-            life: isCompetitiveMode() ? 34 : 18,
+            value: value || 1,
+            module: kind === "module" ? randomPart() : null,
+            life: kind === "scrap" ? 40 : 22,
             spin: rand(0, Math.PI * 2),
             color:
               kind === "repair"
                 ? "#4ade80"
                 : kind === "shield"
                   ? "#38d9ff"
-                  : "#ffd166",
+                  : kind === "module"
+                    ? "#c084fc"
+                    : "#ffd166",
           };
         }
 
-        function randomPart(target) {
-          const pool =
-            target && target !== player
-              ? PARTS.filter((part) => part.id !== "drone-part")
-              : PARTS;
-          return pool[Math.floor(Math.random() * pool.length)];
+        function randomPart() {
+          return PARTS[Math.floor(Math.random() * PARTS.length)];
         }
 
-        function collectPickup(target, pickup) {
+        function collectPickup(pickup) {
+          if (pickup.kind === "scrap") {
+            player.scrap += pickup.value;
+            addFloater(`+${pickup.value} 零件`, player.x, player.y - 36, "#ffd166");
+            return;
+          }
           if (pickup.kind === "repair") {
-            const repair = target === player ? 42 : 28;
-            target.hp = Math.min(target.maxHp, target.hp + repair);
-            addFloater(`修复 +${repair}`, target.x, target.y - 36, "#4ade80");
-            if (target === player) showToast("装甲修复");
+            healPlayer(42);
+            addFloater("修复 +42", player.x, player.y - 36, "#4ade80");
+            showToast("装甲修复");
             return;
           }
           if (pickup.kind === "shield") {
-            target.shieldUntil = performance.now() / 1000 + 2.4;
-            if (target === player) player.energyShield = maxEnergyShield(player);
-            addFloater("护盾", target.x, target.y - 36, "#38d9ff");
-            if (target === player) showToast("临时护盾启动");
+            player.shieldUntil = performance.now() / 1000 + 2.4;
+            player.energyShield = maxEnergyShield(player);
+            addFloater("护盾", player.x, player.y - 36, "#38d9ff");
+            showToast("临时护盾启动");
             return;
           }
-          const module =
-            target !== player &&
-            pickup.module &&
-            pickup.module.id === "drone-part"
-              ? randomPart(target)
-              : pickup.module || randomPart(target);
-          module.apply(target);
-          target.parts = target.parts || [];
-          target.parts.push(module.title);
-          target.scrap = (target.scrap || 0) + 1;
-          addFloater(
-            module.title,
-            target.x,
-            target.y - 40,
-            target === player ? "#ffd166" : "#a78bfa",
-          );
-          if (target === player) showToast(`自动装配：${module.title}`);
+          const module = pickup.module || randomPart();
+          module.apply(player);
+          player.parts.push(module.title);
+          addFloater(module.title, player.x, player.y - 40, "#c084fc");
+          showToast(`自动装配：${module.title}`);
+        }
+
+        function wakeSquad(enemy) {
+          if (!enemy.dormant || enemy === game.boss) return;
+          for (const other of enemies) {
+            if (
+              other.dormant &&
+              other !== game.boss &&
+              (other === enemy || (enemy.squad && other.squad === enemy.squad))
+            ) {
+              other.dormant = false;
+              other.reloadLeft = Math.max(other.reloadLeft, rand(0.4, 1.2));
+            }
+          }
         }
 
         function updateEnemies(dt) {
           for (const enemy of enemies) {
+            if (enemy.dormant) {
+              if (distSq(enemy, player) < 640 * 640) wakeSquad(enemy);
+              continue;
+            }
             enemy.aiTime -= dt;
             if (enemy.repair) {
               enemy.repairTimer -= dt;
@@ -2576,7 +2978,7 @@
                   if (ally !== enemy && distance(enemy, ally) < 260)
                     ally.hp = Math.min(
                       ally.maxHp,
-                      ally.hp + 24 + game.wave * 3,
+                      ally.hp + 24 + stageLevel() * 3,
                     );
                 }
                 explosions.push({
@@ -2592,30 +2994,16 @@
                 });
               }
             }
+            if (enemy === game.boss) updateBossPattern(enemy, dt);
+            const target = player;
+            const blocked = !hasLineOfSight(enemy, target);
             if (
-              enemy.type === "boss" &&
-              enemy.hp < enemy.maxHp * 0.5 &&
-              !enemy.phaseTwo
-            ) {
-              enemy.phaseTwo = true;
-              enemy.reload *= 0.68;
-              enemy.speed *= 1.18;
-              spawnEnemy("shield", 0, 0, game.wave);
-              spawnEnemy("artillery", 0, 0, game.wave);
-              showToast("移动堡垒进入二阶段");
-            }
-            const target = chooseEnemyTarget(enemy);
-            const desiredPart = isCompetitiveMode() ? nearestPart(enemy) : null;
-            const blocked = target && !hasLineOfSight(enemy, target);
-            if (blocked && (!enemy.waypoint || enemy.aiTime <= 0))
+              blocked &&
+              !enemy.turret &&
+              (!enemy.waypoint || enemy.aiTime <= 0)
+            )
               enemy.waypoint = findFlankPoint(enemy, target);
-            const pickupRange = enemy.hp < enemy.maxHp * 0.45 ? 760 : 560;
-            const goal =
-              desiredPart && distance(enemy, desiredPart) < pickupRange
-                ? desiredPart
-                : blocked && enemy.waypoint
-                  ? enemy.waypoint
-                  : target;
+            const goal = blocked && enemy.waypoint ? enemy.waypoint : target;
             const dx = goal.x - enemy.x;
             const dy = goal.y - enemy.y;
             const d = Math.hypot(dx, dy) || 1;
@@ -2627,16 +3015,13 @@
                 : enemy.type === "heavy" || enemy.type === "shield"
                   ? 360
                   : enemy.type === "boss"
-                    ? 510
+                    ? 420
                     : 430;
             const close = d < ideal * 0.72;
             const far = d > ideal * 1.18;
             let mx = 0;
             let my = 0;
-            if (desiredPart && goal === desiredPart) {
-              mx += toGoal.x * 1.2;
-              my += toGoal.y * 1.2;
-            } else if (far) {
+            if (far) {
               mx += toGoal.x;
               my += toGoal.y;
             } else if (close) {
@@ -2699,7 +3084,7 @@
               enemy.reloadLeft <= 0 &&
               targetDistance < 880 &&
               aimError < 0.34 &&
-              hasLineOfSight(enemy, target)
+              !blocked
             ) {
               enemyFire(enemy, target);
               enemy.reloadLeft = enemy.reload * rand(0.78, 1.25);
@@ -2707,32 +3092,97 @@
           }
         }
 
-        function chooseEnemyTarget(enemy) {
-          if (!isCompetitiveMode()) return player;
-          const candidates = player.hp > 0 ? [player] : [];
-          for (const other of enemies) {
-            if (other !== enemy && other.hp > 0) candidates.push(other);
+        function updateBossPattern(boss, dt) {
+          if (boss.hp < boss.maxHp * 0.5 && !boss.phaseTwo) {
+            boss.phaseTwo = true;
+            boss.reload *= 0.72;
+            boss.speed *= 1.18;
+            spawnNear("shield", boss.x, boss.y, 220);
+            spawnNear(
+              game.stage >= 3 ? "artillery" : "heavy",
+              boss.x,
+              boss.y,
+              220,
+            );
+            showToast(`${boss.name} 进入狂暴阶段`);
+            shake(10);
           }
-          if (!candidates.length) return player;
-          return (
-            candidates.reduce((best, target) => {
-              const weak = target.hp / target.maxHp;
-              const score =
-                distance(enemy, target) * 0.82 +
-                weak * 260 -
-                (target.score || target.points || 0) * 0.18;
-              return !best || score < best.score ? { target, score } : best;
-            }, null).target || player
-          );
+          boss.specialTimer -= dt * (boss.phaseTwo ? 1.4 : 1);
+          if (boss.specialTimer > 0) return;
+          const moves = boss.spec.moves;
+          bossSpecial(boss, moves[boss.specialIndex % moves.length]);
+          boss.specialIndex += 1;
+          boss.specialTimer = boss.spec.interval;
         }
 
-        function nearestPart(entity) {
-          let best = null;
-          for (const part of parts) {
-            const d = distance(entity, part);
-            if (!best || d < best.d) best = { part, d };
+        function bossSpecial(boss, move) {
+          const aim = Math.atan2(player.y - boss.y, player.x - boss.x);
+          const shot = (angle, options) =>
+            fireBullet(
+              "enemy",
+              boss.x + Math.cos(angle) * boss.size * 0.5,
+              boss.y + Math.sin(angle) * boss.size * 0.5,
+              angle,
+              {
+                damage: boss.damage * 0.8,
+                bounces: 0,
+                speed: 330,
+                color: boss.color,
+                size: 6.5,
+                life: 3.4,
+                ownerTank: boss,
+                ...options,
+              },
+            );
+          if (move === "ring") {
+            const count = 14 + game.stage * 2;
+            const offset = rand(0, Math.PI * 2);
+            for (let i = 0; i < count; i++)
+              shot(offset + (Math.PI * 2 * i) / count, {});
+          } else if (move === "fan") {
+            for (let i = -3; i <= 3; i++) shot(aim + i * 0.13, { speed: 400 });
+          } else if (move === "rail") {
+            const count = boss.phaseTwo ? 3 : 1;
+            for (let i = 0; i < count; i++)
+              shot(aim + (i - (count - 1) / 2) * 0.22, {
+                damage: boss.damage * 2,
+                speed: 760,
+                size: 10,
+                blast: 90,
+                color: "#ffffff",
+              });
+            shake(6);
+          } else if (move === "summon") {
+            const pool = stageConfig().pool.filter((type) => type !== "turret");
+            if (enemies.length < 12) {
+              for (let i = boss.phaseTwo ? 3 : 2; i > 0; i--)
+                spawnNear(pool[irand(0, pool.length - 1)], boss.x, boss.y, 190);
+              showToast(`${boss.name} 呼叫增援`);
+            }
+          } else if (move === "barrage") {
+            for (let i = 0; i < 3 + game.stage; i++)
+              callAirstrike(
+                clamp(player.x + rand(-260, 260), 80, WORLD_W - 80),
+                clamp(player.y + rand(-220, 220), 80, game.gateY - 60),
+                rand(70, 105),
+                "enemy",
+              );
+            showToast("首领标记了炮击区域");
+          } else if (move === "mines") {
+            for (let i = 0; i < 6 + game.stage; i++) {
+              const a = rand(0, Math.PI * 2);
+              const d = rand(120, 420);
+              mines.push({
+                owner: "enemy",
+                x: clamp(boss.x + Math.cos(a) * d, 40, WORLD_W - 40),
+                y: clamp(boss.y + Math.sin(a) * d, 40, game.gateY - 40),
+                r: 11,
+                arm: 0.9,
+                life: 10,
+                ownerTank: boss,
+              });
+            }
           }
-          return best ? best.part : null;
         }
 
         function findFlankPoint(enemy, target) {
@@ -2745,12 +3195,12 @@
               x: clamp(
                 target.x + Math.cos(angle) * preferred,
                 120,
-                WORLD - 120,
+                WORLD_W - 120,
               ),
               y: clamp(
                 target.y + Math.sin(angle) * preferred,
                 120,
-                WORLD - 120,
+                WORLD_H - 120,
               ),
             };
             if (circleHitsWall(point.x, point.y, enemy.size * 0.5)) continue;
@@ -2834,15 +3284,7 @@
           const steps = 16;
           for (let i = 1; i < steps; i++) {
             const t = i / steps;
-            const x = lerp(a.x, b.x, t);
-            const y = lerp(a.y, b.y, t);
-            for (const wall of walls) {
-              if (
-                Math.abs(x - wall.x) < wall.w / 2 &&
-                Math.abs(y - wall.y) < wall.h / 2
-              )
-                return false;
-            }
+            if (wallAt(lerp(a.x, b.x, t), lerp(a.y, b.y, t), 0)) return false;
           }
           return true;
         }
@@ -2858,16 +3300,14 @@
             if (
               bullet.life <= 0 ||
               bullet.x < -80 ||
-              bullet.x > WORLD + 80 ||
+              bullet.x > WORLD_W + 80 ||
               bullet.y < -80 ||
-              bullet.y > WORLD + 80
+              bullet.y > WORLD_H + 80
             ) {
               bullets.splice(i, 1);
               continue;
             }
-            const wall = walls.find((item) =>
-              circleRectHit(bullet.x, bullet.y, bullet.r, item),
-            );
+            const wall = wallAt(bullet.x, bullet.y, bullet.r);
             if (wall) {
               hitWall(wall, bullet);
               if (bullet.bounces > 0 && wall.type === "steel") {
@@ -2951,36 +3391,6 @@
                 bullets.splice(i, 1);
                 consumed = true;
               }
-              if (!consumed && isCompetitiveMode()) {
-                const target = enemies.find(
-                  (enemy) =>
-                    enemy !== bullet.ownerTank &&
-                    distance(enemy, bullet) < enemy.size * 0.48 + bullet.r,
-                );
-                if (target) {
-                  const side = hitSide(target, bullet);
-                  damageEnemy(
-                    target,
-                    bullet.damage * side.mult,
-                    side.name,
-                    bullet.ownerTank,
-                  );
-                  burst(bullet.x, bullet.y, bullet.color, 10);
-                  if (bullet.blast > 0)
-                    explosions.push({
-                      x: bullet.x,
-                      y: bullet.y,
-                      r: 20,
-                      max: bullet.blast,
-                      life: 0.26,
-                      damage: bullet.damage * 0.5,
-                      owner: "enemy",
-                      color: bullet.color,
-                      ownerTank: bullet.ownerTank,
-                    });
-                  bullets.splice(i, 1);
-                }
-              }
             }
           }
         }
@@ -2992,8 +3402,11 @@
           if (wall.hp <= 0) {
             const index = walls.indexOf(wall);
             if (index >= 0) walls.splice(index, 1);
+            wallsDirty = true;
             game.score += 8;
             burst(wall.x, wall.y, "#ffb25f", 18);
+            if (Math.random() < 0.12)
+              parts.push(makePickup(wall.x, wall.y, "scrap", 1));
           }
         }
 
@@ -3024,7 +3437,15 @@
           return { name: "正甲", mult: 0.82 };
         }
 
-        function damageEnemy(enemy, amount, side, killer) {
+        function damageEnemy(enemy, amount, side) {
+          if (enemy.hp <= 0) return;
+          if (enemy.dormant) {
+            if (enemy === game.boss) {
+              addFloater("闸门护盾", enemy.x, enemy.y - enemy.size * 0.6, "#9fb0c8");
+              return;
+            }
+            wakeSquad(enemy);
+          }
           const armorFactor = side === "正甲" ? 1 - (enemy.frontArmor || 0) : 1;
           enemy.hp -= Math.max(1, amount * armorFactor);
           addFloater(
@@ -3033,56 +3454,35 @@
             enemy.y - enemy.size * 0.6,
             side === "正甲" ? "#9fb0c8" : "#ffd166",
           );
-          if (enemy.hp <= 0) {
-            const index = enemies.indexOf(enemy);
-            if (index >= 0) enemies.splice(index, 1);
-            awardKill(killer, enemy);
-            burst(
-              enemy.x,
-              enemy.y,
-              enemy.color,
-              enemy.type === "boss" ? 70 : 28,
-            );
-            explosions.push({
-              x: enemy.x,
-              y: enemy.y,
-              r: 26,
-              max: enemy.type === "boss" ? 260 : 110,
-              life: 0.38,
-              damage: enemy.type === "boss" ? 42 : 22,
-              owner: "player",
-              color: enemy.color,
-              visualOnly: true,
-            });
-            dropParts(
-              enemy.x,
-              enemy.y,
-              enemy.type === "boss" ? 6 : enemy.elite ? 3 : 2,
-            );
-            if (isRespawnMode()) {
-              respawnArenaBot(enemy);
-            }
-          }
+          if (enemy.hp > 0) return;
+          const index = enemies.indexOf(enemy);
+          if (index >= 0) enemies.splice(index, 1);
+          awardKill(enemy);
+          burst(enemy.x, enemy.y, enemy.color, enemy.type === "boss" ? 70 : 28);
+          explosions.push({
+            x: enemy.x,
+            y: enemy.y,
+            r: 26,
+            max: enemy.type === "boss" ? 260 : 110,
+            life: 0.38,
+            damage: 0,
+            owner: "player",
+            color: enemy.color,
+            visualOnly: true,
+          });
+          dropLoot(enemy);
+          if (enemy === game.boss) onBossDefeated();
         }
 
-        function awardKill(killer, victim) {
+        function awardKill(victim) {
           const value = Math.round(victim.score);
-          if (killer === player || !isCompetitiveMode()) {
-            game.score += value;
-            player.kills += 1;
-            if (!isCompetitiveMode())
-              healPlayer(victim.type === "boss" ? 30 : 4);
-            addFloater(`+${value}`, victim.x, victim.y, "#4ade80");
-            return;
-          }
-          if (killer) {
-            killer.points = (killer.points || 0) + value;
-            killer.kills = (killer.kills || 0) + 1;
-            addFloater(`+${value}`, victim.x, victim.y, "#a78bfa");
-          }
+          game.score += value;
+          player.kills += 1;
+          healPlayer(victim.type === "boss" ? 30 : 4);
+          addFloater(`+${value}`, victim.x, victim.y, "#4ade80");
         }
 
-        function damagePlayer(amount, killer) {
+        function damagePlayer(amount) {
           const now = performance.now() / 1000;
           if (player.shieldUntil > now) {
             spark(player.x, player.y, "#38d9ff", 12);
@@ -3091,7 +3491,10 @@
           if (now - player.lastHitAt < PLAYER_HIT_GRACE) return;
           player.lastHitAt = now;
           let taken =
-            amount * PLAYER_DAMAGE_TAKEN * (1 - (player.frontArmor || 0) * 0.5);
+            amount *
+            PLAYER_DAMAGE_TAKEN *
+            (1 - (player.frontArmor || 0) * 0.5) *
+            (1 - player.damageReduce);
           if (player.energyShield > 0) {
             const absorbed = Math.min(player.energyShield, taken);
             player.energyShield -= absorbed;
@@ -3100,10 +3503,6 @@
             if (player.energyShield <= 0) showToast("护盾击穿");
           }
           player.hp = Math.max(0, player.hp - taken);
-          if (player.hp <= 0 && killer && isCompetitiveMode()) {
-            killer.points = (killer.points || 0) + 260;
-            killer.kills = (killer.kills || 0) + 1;
-          }
           shake(8);
           addFloater(
             `-${Math.round(taken)}`,
@@ -3128,13 +3527,6 @@
                     (enemy) => distance(enemy, mine) < enemy.size * 0.48 + 24,
                   )
                 : distance(player, mine) < player.size * 0.48 + 24;
-            if (!target && isCompetitiveMode() && mine.owner !== "player") {
-              target = enemies.find(
-                (enemy) =>
-                  enemy !== mine.ownerTank &&
-                  distance(enemy, mine) < enemy.size * 0.48 + 24,
-              );
-            }
             if ((mine.arm <= 0 && target) || mine.life <= 0) {
               explosions.push({
                 x: mine.x,
@@ -3229,149 +3621,167 @@
         }
 
         function updateCamera(dt) {
-          camera.x = lerp(camera.x, player.x, 1 - Math.pow(0.002, dt));
-          camera.y = lerp(camera.y, player.y, 1 - Math.pow(0.002, dt));
           const zoom = getZoom();
-          const marginX = view.w / zoom / 2;
-          const marginY = view.h / zoom / 2;
-          camera.x = clamp(camera.x, marginX, WORLD - marginX);
-          camera.y = clamp(camera.y, marginY, WORLD - marginY);
+          const halfW = view.w / zoom / 2;
+          const halfH = view.h / zoom / 2;
+          const lookAhead = Math.min(halfH * 0.28, 170);
+          camera.x = lerp(camera.x, player.x, 1 - Math.pow(0.002, dt));
+          camera.y = lerp(
+            camera.y,
+            player.y - lookAhead,
+            1 - Math.pow(0.002, dt),
+          );
+          camera.x =
+            halfW * 2 >= WORLD_W
+              ? WORLD_W / 2
+              : clamp(camera.x, halfW, WORLD_W - halfW);
+          camera.y =
+            halfH * 2 >= WORLD_H
+              ? WORLD_H / 2
+              : clamp(camera.y, halfH, WORLD_H - halfH);
         }
 
-        function checkWave(dt) {
-          if (enemies.length > 0) return;
-          if (game.waveClearTimer <= 0) {
-            game.waveClearTimer = 1.25;
-            showToast(`第 ${game.wave} 波清空`);
-          }
-          game.waveClearTimer -= dt;
-          if (game.waveClearTimer > 0) return;
-          if (game.wave >= game.maxWave) {
-            endGame(true);
-            return;
-          }
-          game.state = "upgrade";
-          openUpgrade();
+        function checkStage(dt) {
+          if (!game.bossActive && player.y < game.gateY - player.size * 0.55)
+            activateBoss();
+          if (!game.bossDefeated) return;
+          game.clearTimer -= dt;
+          if (game.clearTimer > 0) return;
+          if (game.stage >= game.maxStage) endGame(true);
+          else openShop("reward");
         }
 
-        function checkCompetitive(dt) {
-          const config = modeConfig();
-          if (config.respawn) {
-            game.arenaTime -= dt;
-            if (game.arenaTime <= 0) {
-              endGame(playerRank() === 1);
-              return;
-            }
-            while (enemies.length < config.bots) respawnArenaBot(null);
-            return;
+        function activateBoss() {
+          game.bossActive = true;
+          for (let c = GATE_GAP[0]; c <= GATE_GAP[1]; c++) {
+            const wall = makeWall(cellX(c), cellY(GATE_ROW), TILE, TILE, "steel");
+            wall.gate = true;
+            walls.push(wall);
           }
-          if (config.elimination && enemies.length === 0 && player.hp > 0) {
-            endGame(true);
-          }
+          wallsDirty = true;
+          enemies = enemies.filter(
+            (enemy) =>
+              enemy === game.boss || enemy.y < game.gateY - enemy.size * 0.5,
+          );
+          bullets = bullets.filter((bullet) => bullet.y < game.gateY + TILE);
+          const boss = game.boss;
+          boss.dormant = false;
+          boss.reloadLeft = 1.2;
+          boss.specialTimer = 2;
+          showToast(`关底首领：${boss.name}`);
+          shake(12);
         }
 
-        function playerRank() {
-          return arenaStandings().findIndex((row) => row.player) + 1;
-        }
-
-        function arenaStandings() {
-          const rows = [
-            {
-              name: "你",
-              score: game.score,
-              kills: player.kills,
-              player: true,
-            },
-          ];
+        function onBossDefeated() {
+          game.bossDefeated = true;
+          game.bossKills += 1;
+          game.clearTimer = 2.4;
+          const bonus = 18 + game.stage * 8;
+          player.scrap += bonus;
+          game.score += 1500 * game.stage;
           for (const enemy of enemies) {
-            rows.push({
-              name: enemy.name,
-              score: enemy.points || 0,
-              kills: enemy.kills || 0,
-              player: false,
-            });
+            enemy.hp = 0;
+            burst(enemy.x, enemy.y, enemy.color, 18);
           }
-          return rows.sort((a, b) => b.score - a.score || b.kills - a.kills);
+          enemies = [];
+          bullets = bullets.filter((bullet) => bullet.owner === "player");
+          mines = mines.filter((mine) => mine.owner === "player");
+          airstrikes = [];
+          healPlayer(
+            player.maxHp * (0.25 + (garageSave.tech.recovery || 0) * 0.02),
+          );
+          shake(16);
+          showToast(`${game.boss.name} 已击毁！零件 +${bonus}`);
         }
 
-        function eliminationRank() {
-          if (player.hp > 0 && enemies.length === 0) return 1;
-          return Math.max(2, enemies.length + 1);
-        }
+        let shopKind = "pause";
+        let rewardTaken = true;
 
-        function respawnPlayer() {
-          player.deaths += 1;
-          dropParts(player.x, player.y, 4);
-          burst(player.x, player.y, "#38d9ff", 34);
-          const point = randomSpawnPoint();
-          player.x = point.x;
-          player.y = point.y;
-          player.vx = 0;
-          player.vy = 0;
-          player.hp = Math.max(70, player.maxHp * 0.85);
-          player.energyShield = maxEnergyShield(player);
-          player.shieldUntil = performance.now() / 1000 + 2.5;
-          showToast("战车重部署");
-        }
-
-        function respawnArenaBot(oldBot) {
-          if (!isRespawnMode() || game.state === "ended") return;
-          const type = oldBot
-            ? oldBot.type
-            : ["scout", "heavy", "rocket", "miner"][
-                Math.floor(Math.random() * 4)
-              ];
-          const bot = spawnEnemy(type, 0, 0, 3);
-          if (oldBot) {
-            bot.name = oldBot.name;
-            bot.points = oldBot.points || 0;
-            bot.kills = oldBot.kills || 0;
-            bot.deaths = (oldBot.deaths || 0) + 1;
-            bot.scrap = Math.max(1, Math.floor((oldBot.scrap || 0) * 0.5));
-            bot.parts = oldBot.parts || [];
-            for (const title of bot.parts) {
-              const part = PARTS.find((item) => item.title === title);
-              if (part) part.apply(bot);
-            }
-          } else {
-            bot.name = BOT_NAMES[Math.floor(Math.random() * BOT_NAMES.length)];
-            bot.points = 0;
-            bot.kills = 0;
-            bot.deaths = 0;
-            bot.scrap = 1;
-            bot.parts = [];
-          }
-          bot.arena = true;
-          bot.buildTimer = rand(3, 8);
-        }
-
-        function openPartShop() {
-          if (!isCompetitiveMode() || game.state !== "playing") return;
-          showToast("竞技模块会在拾取后自动装配");
-        }
-
-        function openUpgrade() {
+        function openShop(kind) {
+          if (kind === "pause" && game.state !== "playing") return;
+          shopKind = kind;
+          rewardTaken = kind !== "reward";
+          game.state = "shop";
+          pointer.down = false;
           upgradeGrid.innerHTML = "";
-          const choices = pickUpgrades();
-          upgradeTitle.textContent = `第 ${game.wave} 波完成，选择升级`;
-          for (const upgrade of choices) {
-            const button = document.createElement("button");
-            button.className = "upgrade-card";
-            button.innerHTML = `<strong>${upgrade.title}</strong><span>${upgrade.text}</span>`;
-            button.addEventListener("click", () => {
-              upgrade.apply();
-              healPlayer(player.maxHp * (garageSave.tech.recovery || 0) * 0.02);
-              game.wave += 1;
-              game.waveClearTimer = 0;
-              spawnWave();
-              game.state = "playing";
-              upgradeOverlay.classList.add("hidden");
-              showToast(`第 ${game.wave} 波开始`);
-              updateHud(true);
-            });
-            upgradeGrid.appendChild(button);
+          if (kind === "reward") {
+            upgradeTitle.textContent = `第 ${game.stage} 关突破！选择一项首领战利品，再用零件改装`;
+            for (const upgrade of pickUpgrades()) {
+              const button = document.createElement("button");
+              button.className = "upgrade-card";
+              button.innerHTML = `<strong>${upgrade.title}</strong><span>${upgrade.text}</span>`;
+              button.addEventListener("click", () => {
+                if (rewardTaken) return;
+                upgrade.apply();
+                rewardTaken = true;
+                button.classList.add("picked");
+                upgradeGrid
+                  .querySelectorAll("button")
+                  .forEach((item) => (item.disabled = item !== button));
+                renderShop();
+                updateHud(true);
+              });
+              upgradeGrid.appendChild(button);
+            }
+            upgradeGrid.classList.remove("hidden");
+          } else {
+            upgradeTitle.textContent = "战车改装（战斗已暂停）";
+            upgradeGrid.classList.add("hidden");
           }
+          renderShop();
           upgradeOverlay.classList.remove("hidden");
+        }
+
+        function shopCost(item) {
+          return item.cost
+            ? item.cost()
+            : item.base + item.step * (player.upgrades[item.id] || 0);
+        }
+
+        function renderShop() {
+          shopScrap.textContent = `零件 ${player.scrap} · 装甲 ${Math.round(player.hp)}/${player.maxHp} · 备用车体 ${player.lives}`;
+          shopGrid.innerHTML = SHOP.map((item) => {
+            const level = player.upgrades[item.id] || 0;
+            const maxed = item.max && level >= item.max;
+            const cost = shopCost(item);
+            const levelText = item.consumable
+              ? "补给"
+              : `Lv.${level}${item.max ? `/${item.max}` : ""}`;
+            return `<button class="shop-card" data-shop="${item.id}" ${maxed || player.scrap < cost ? "disabled" : ""}><small>${item.group}</small><strong>${item.name} <b>${levelText}</b></strong><span>${item.text}</span><em>${maxed ? "已满级" : `零件 ${cost}`}</em></button>`;
+          }).join("");
+          shopContinue.disabled = !rewardTaken;
+          shopContinue.textContent =
+            shopKind !== "reward"
+              ? "返回战斗"
+              : rewardTaken
+                ? `出发：第 ${game.stage + 1} 关 · ${STAGES[game.stage].name}`
+                : "先选择一项战利品";
+        }
+
+        function buyShop(id) {
+          const item = SHOP.find((entry) => entry.id === id);
+          if (!item || game.state !== "shop") return;
+          const level = player.upgrades[item.id] || 0;
+          const cost = shopCost(item);
+          if ((item.max && level >= item.max) || player.scrap < cost) return;
+          player.scrap -= cost;
+          if (!item.consumable) player.upgrades[item.id] = level + 1;
+          item.apply();
+          renderShop();
+          updateHud(true);
+        }
+
+        function closeShop() {
+          if (game.state !== "shop" || !rewardTaken) return;
+          upgradeOverlay.classList.add("hidden");
+          pointer.down = false;
+          if (shopKind === "reward") {
+            game.stage += 1;
+            loadStage();
+          } else {
+            game.state = "playing";
+            showToast("改装完成");
+          }
         }
 
         function pickUpgrades() {
@@ -3387,61 +3797,45 @@
         function endGame(won) {
           if (game.state === "ended") return;
           game.state = "ended";
+          upgradeOverlay.classList.add("hidden");
           game.best = Math.max(game.best, game.score);
           garageSave.best = Math.max(garageSave.best || 0, game.best);
           const credits = Math.max(
             1,
             Math.floor(
-              (game.score / 420 + player.kills * 1.4 + (won ? 10 : 0)) *
+              (game.score / 420 +
+                player.kills * 1.4 +
+                game.bossKills * 8 +
+                (won ? 20 : 0)) *
                 (1 + (garageSave.tech.salvage || 0) * 0.06),
             ),
           );
           garageSave.credits += credits;
           garageSave.totalKills = (garageSave.totalKills || 0) + player.kills;
-          if (won && !isCompetitiveMode())
-            garageSave.bosses = (garageSave.bosses || 0) + 1;
+          garageSave.bosses = (garageSave.bosses || 0) + game.bossKills;
           garageSave.wins = (garageSave.wins || 0) + (won ? 1 : 0);
-          const record = garageSave.records[selectedMode] || {
+          const record = garageSave.records[MODE_KEY] || {
             plays: 0,
             wins: 0,
             best: 0,
-            wave: 0,
+            stage: 0,
           };
           record.plays += 1;
           record.wins += won ? 1 : 0;
           record.best = Math.max(record.best, Math.round(game.score));
-          record.wave = Math.max(record.wave, game.wave || 0);
-          garageSave.records[selectedMode] = record;
+          record.stage = Math.max(record.stage || 0, game.stage);
+          garageSave.records[MODE_KEY] = record;
           garageSave.mastery.chassis[selectedChassis] =
             (garageSave.mastery.chassis[selectedChassis] || 0) + 1;
           garageSave.mastery.cannon[selectedCannon] =
             (garageSave.mastery.cannon[selectedCannon] || 0) + 1;
           const milestoneBonus = settleMilestones();
           saveGarage();
-          if (isEliminationMode()) {
-            const rank = won ? 1 : eliminationRank();
-            overlayTitle.textContent = won ? "最后生还" : `淘汰排名第 ${rank}`;
-            overlayText.textContent = won
-              ? `你成为最后一辆还能开火的坦克，击毁 ${player.kills}，自动装配 ${player.parts.length} 个模块。`
-              : `你的战车被淘汰，最终排名第 ${rank}，击毁 ${player.kills}，自动装配 ${player.parts.length} 个模块。`;
-          } else if (isCompetitiveMode()) {
-            const rank = playerRank();
-            const top = arenaStandings()
-              .slice(0, 3)
-              .map(
-                (row, index) =>
-                  `${index + 1}. ${row.name} ${Math.round(row.score)}`,
-              )
-              .join(" / ");
-            overlayTitle.textContent =
-              rank === 1 ? "竞技冠军" : `排名第 ${rank}`;
-            overlayText.textContent = `计时死斗结束，得分 ${Math.round(game.score)}，击毁 ${player.kills}，阵亡 ${player.deaths}，自动装配 ${player.parts.length} 个模块。前三名：${top}。`;
-          } else {
-            overlayTitle.textContent = won ? "战场肃清" : "装甲失效";
-            overlayText.textContent = won
-              ? `你击穿了最终堡垒，得分 ${Math.round(game.score)}。最高纪录 ${Math.round(game.best)}。`
-              : `你的战车停在第 ${game.wave} 波，得分 ${Math.round(game.score)}。最高纪录 ${Math.round(game.best)}。`;
-          }
+          const stage = stageConfig();
+          overlayTitle.textContent = won ? "五关全破" : "装甲失效";
+          overlayText.textContent = won
+            ? `你一路向北击穿了五座关底堡垒，${stage.boss.name}已化为废墟。得分 ${Math.round(game.score)}，击毁 ${player.kills}。最高纪录 ${Math.round(game.best)}。`
+            : `你的战车倒在第 ${game.stage} 关「${stage.name}」${game.bossActive ? `，与${stage.boss.name}的决战中` : ""}。得分 ${Math.round(game.score)}，击毁 ${player.kills}。最高纪录 ${Math.round(game.best)}。`;
           overlayText.textContent += ` 本次获得军功 ${credits}。`;
           if (milestoneBonus)
             overlayText.textContent += ` 里程碑额外奖励 ${milestoneBonus} 军功。`;
@@ -3451,24 +3845,10 @@
           updateHud(true);
         }
 
-        function formatTime(seconds) {
-          const safe = Math.max(0, Math.ceil(seconds));
-          const minutes = Math.floor(safe / 60);
-          const remain = safe % 60;
-          return `${minutes}:${String(remain).padStart(2, "0")}`;
-        }
-
         function updateHud(force) {
-          if (!player || (!force && game.state === "upgrade")) return;
-          if (isEliminationMode()) {
-            waveValue.textContent = `${enemies.length + (player.hp > 0 ? 1 : 0)}/16`;
-            objectiveValue.textContent = "最后存活者第一";
-          } else if (isCompetitiveMode()) {
-            waveValue.textContent = formatTime(game.arenaTime);
-            objectiveValue.textContent = `第 ${playerRank()} 名 / 自动装配`;
-          } else {
-            waveValue.textContent = `${game.wave}/${game.maxWave}`;
-          }
+          if (!player || !game.stage || (!force && game.state === "shop"))
+            return;
+          waveValue.textContent = `${game.stage}/${STAGES.length}`;
           scoreValue.textContent = Math.round(game.score);
           bestValue.textContent = Math.round(
             Math.max(game.best || 0, game.score),
@@ -3480,9 +3860,19 @@
           reloadBar.style.width = `${clamp((1 - player.reloadLeft / player.reload) * 100, 0, 100)}%`;
           shellValue.textContent = player.shellName;
           bounceValue.textContent = String(player.bounces);
-          partValue.textContent = isCompetitiveMode()
-            ? String(player.parts.length)
-            : String(player.scrap || 0);
+          partValue.textContent = String(player.scrap || 0);
+          lifeValue.textContent = String(player.lives);
+          const startY = WORLD_H - TILE * 2.5;
+          const progress = clamp(
+            Math.round(((startY - player.y) / (startY - game.gateY)) * 100),
+            0,
+            100,
+          );
+          objectiveValue.textContent = game.bossDefeated
+            ? "关卡突破"
+            : game.bossActive
+              ? `击毁${game.boss.name}`
+              : `向北推进 ${progress}%`;
           const skillNames = {
             vanguard: "电磁脉冲",
             interceptor: "截击超频",
@@ -3557,37 +3947,63 @@
           drawFloaters();
           ctx.restore();
           drawVignette();
+          drawStageUi();
         }
 
         function drawWorld() {
-          ctx.fillStyle = "#0a151b";
-          ctx.fillRect(0, 0, WORLD, WORLD);
-          ctx.strokeStyle = "rgba(129, 194, 213, 0.08)";
+          const stage = stageConfig();
+          const halfH = view.h / getZoom() / 2 + TILE;
+          const top = Math.max(0, camera.y - halfH);
+          const bottom = Math.min(WORLD_H, camera.y + halfH);
+          ctx.fillStyle = stage.floor;
+          ctx.fillRect(0, 0, WORLD_W, WORLD_H);
+          ctx.fillStyle = "rgba(255, 51, 85, 0.06)";
+          ctx.fillRect(0, 0, WORLD_W, GATE_ROW * TILE);
+          ctx.strokeStyle = stage.grid;
           ctx.lineWidth = 1;
-          for (let x = 0; x <= WORLD; x += TILE) {
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, WORLD);
-            ctx.stroke();
+          ctx.beginPath();
+          for (let x = 0; x <= WORLD_W; x += TILE) {
+            ctx.moveTo(x, top);
+            ctx.lineTo(x, bottom);
           }
-          for (let y = 0; y <= WORLD; y += TILE) {
-            ctx.beginPath();
+          for (let y = Math.floor(top / TILE) * TILE; y <= bottom; y += TILE) {
             ctx.moveTo(0, y);
-            ctx.lineTo(WORLD, y);
-            ctx.stroke();
+            ctx.lineTo(WORLD_W, y);
           }
-          ctx.strokeStyle = "rgba(56, 217, 255, 0.28)";
+          ctx.stroke();
+          ctx.strokeStyle = "rgba(74, 222, 128, 0.35)";
+          ctx.lineWidth = 3;
+          ctx.setLineDash([12, 10]);
+          ctx.strokeRect(WORLD_W / 2 - TILE * 2, WORLD_H - TILE * 4, TILE * 4, TILE * 3);
+          ctx.setLineDash([]);
+          if (!game.bossActive) {
+            const gapX = GATE_GAP[0] * TILE;
+            const gapW = (GATE_GAP[1] - GATE_GAP[0] + 1) * TILE;
+            ctx.fillStyle = "rgba(255, 51, 85, 0.16)";
+            ctx.fillRect(gapX, GATE_ROW * TILE, gapW, TILE);
+            ctx.font = "800 22px Microsoft YaHei, Segoe UI, sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillStyle = "rgba(255, 97, 120, 0.85)";
+            ctx.fillText("▲ 首领区域 ▲", WORLD_W / 2, GATE_ROW * TILE + TILE / 2 + 8);
+          }
+          ctx.globalAlpha = 0.35;
+          ctx.strokeStyle = stage.accent;
           ctx.lineWidth = 10;
-          ctx.strokeRect(5, 5, WORLD - 10, WORLD - 10);
+          ctx.strokeRect(5, 5, WORLD_W - 10, WORLD_H - 10);
+          ctx.globalAlpha = 1;
         }
 
         function drawWalls() {
+          const halfH = view.h / getZoom() / 2 + TILE;
           for (const wall of walls) {
+            if (Math.abs(wall.y - camera.y) > halfH) continue;
             const isSteel = wall.type === "steel";
-            ctx.fillStyle = isSteel ? "#27374a" : "#58393a";
-            ctx.strokeStyle = isSteel
-              ? "rgba(135, 168, 204, 0.55)"
-              : "rgba(255, 178, 95, 0.46)";
+            ctx.fillStyle = wall.gate ? "#4a1f2a" : isSteel ? "#27374a" : "#58393a";
+            ctx.strokeStyle = wall.gate
+              ? "rgba(255, 97, 120, 0.85)"
+              : isSteel
+                ? "rgba(135, 168, 204, 0.55)"
+                : "rgba(255, 178, 95, 0.46)";
             ctx.lineWidth = 2;
             roundRect(
               wall.x - wall.w / 2,
@@ -3628,16 +4044,31 @@
             ctx.save();
             ctx.translate(part.x, part.y);
             ctx.rotate(part.spin);
+            if (part.kind === "scrap") {
+              const s = 6 + Math.min(4, part.value);
+              ctx.fillStyle = "rgba(255, 209, 102, 0.85)";
+              ctx.strokeStyle = "#fff3c4";
+              ctx.lineWidth = 1.5;
+              ctx.beginPath();
+              ctx.moveTo(0, -s);
+              ctx.lineTo(s, 0);
+              ctx.lineTo(0, s);
+              ctx.lineTo(-s, 0);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+              ctx.restore();
+              continue;
+            }
             ctx.fillStyle =
               part.kind === "module"
-                ? "rgba(255, 209, 102, 0.17)"
+                ? "rgba(192, 132, 252, 0.18)"
                 : part.kind === "repair"
                   ? "rgba(74, 222, 128, 0.16)"
                   : "rgba(56, 217, 255, 0.16)";
             ctx.strokeStyle = part.color;
             ctx.lineWidth = 2;
             roundRect(-11, -11, 22, 22, 5, true, true);
-            ctx.strokeStyle = part.color;
             ctx.beginPath();
             if (part.kind === "repair") {
               ctx.moveTo(-6, 0);
@@ -3863,6 +4294,64 @@
           ctx.globalAlpha = 1;
         }
 
+        function drawStageUi() {
+          if (!player || !game.stage || !WORLD_H) return;
+          const desktop = view.w > 860;
+          const y0 = desktop ? 330 : 150;
+          const y1 = view.h - (desktop ? 120 : 250);
+          if (y1 - y0 > 90) {
+            const x = view.w - 22;
+            const w = 12;
+            const scale = (y1 - y0) / WORLD_H;
+            ctx.fillStyle = "rgba(5, 10, 16, 0.7)";
+            roundRect(x - 3, y0 - 3, w + 6, y1 - y0 + 6, 5, true, false);
+            ctx.fillStyle = "rgba(255, 51, 85, 0.35)";
+            ctx.fillRect(x, y0, w, GATE_ROW * TILE * scale);
+            ctx.fillStyle = "#ff6178";
+            for (const enemy of enemies) {
+              ctx.globalAlpha = enemy.dormant ? 0.45 : 1;
+              ctx.fillRect(
+                x + (enemy.x / WORLD_W) * w - 1,
+                y0 + enemy.y * scale - 1,
+                enemy === game.boss ? 4 : 2,
+                enemy === game.boss ? 4 : 2,
+              );
+            }
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = "#38d9ff";
+            ctx.beginPath();
+            const py = y0 + player.y * scale;
+            ctx.moveTo(x + w / 2, py - 6);
+            ctx.lineTo(x + w + 3, py + 5);
+            ctx.lineTo(x - 3, py + 5);
+            ctx.closePath();
+            ctx.fill();
+          }
+          const boss = game.boss;
+          if (game.bossActive && boss && !game.bossDefeated) {
+            const w = Math.min(520, view.w * 0.7);
+            const x = (view.w - w) / 2;
+            const y = view.h - (desktop ? 100 : 182);
+            ctx.fillStyle = "rgba(5, 10, 16, 0.78)";
+            roundRect(x - 12, y - 28, w + 24, 46, 8, true, false);
+            ctx.font = "800 13px Microsoft YaHei, Segoe UI, sans-serif";
+            ctx.textAlign = "left";
+            ctx.fillStyle = "#ffffff";
+            ctx.fillText(
+              `第 ${game.stage} 关首领 · ${boss.name}${boss.phaseTwo ? " · 狂暴" : ""}`,
+              x,
+              y - 9,
+            );
+            ctx.textAlign = "right";
+            ctx.fillStyle = "#9fb0c8";
+            ctx.fillText(`${Math.max(0, Math.ceil(boss.hp))}`, x + w, y - 9);
+            ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+            ctx.fillRect(x, y, w, 9);
+            ctx.fillStyle = boss.color;
+            ctx.fillRect(x, y, w * clamp(boss.hp / boss.maxHp, 0, 1), 9);
+          }
+        }
+
         function drawVignette() {
           const grad = ctx.createRadialGradient(
             view.w / 2,
@@ -3954,7 +4443,11 @@
             event.code === "KeyE"
           )
             useSkill();
-          if (event.code === "KeyB") openPartShop();
+          if (event.code === "KeyB") {
+            if (game.state === "shop") closeShop();
+            else openShop("pause");
+          }
+          if (event.code === "Escape" && game.state === "shop") closeShop();
           if (event.code === "KeyP") togglePause();
           if (event.code === "KeyR") newGame();
         });
@@ -4078,6 +4571,12 @@
 
         pauseBtn.addEventListener("click", togglePause);
         restartBtn.addEventListener("click", newGame);
+        shopBtn.addEventListener("click", () => openShop("pause"));
+        shopContinue.addEventListener("click", closeShop);
+        shopGrid.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-shop]");
+          if (button) buyShop(button.dataset.shop);
+        });
         fireBtn.addEventListener("pointerdown", (event) => {
           event.preventDefault();
           event.stopPropagation();
@@ -4101,15 +4600,6 @@
           event.preventDefault(),
         );
         startBtn.addEventListener("click", newGame);
-        modeGrid.addEventListener("click", (event) => {
-          const button = event.target.closest("[data-mode]");
-          if (!button) return;
-          selectedMode = button.dataset.mode;
-          modeButtons.forEach((item) =>
-            item.classList.toggle("active", item === button),
-          );
-          saveGarage();
-        });
         chassisGrid.addEventListener("click", (event) => {
           const button = event.target.closest("[data-chassis]");
           if (!button) return;
@@ -4147,25 +4637,24 @@
         });
 
         function togglePause() {
-          if (!game.state || game.state === "ended" || game.state === "upgrade")
-            return;
+          if (game.state !== "playing" && game.state !== "paused") return;
           game.state = game.state === "paused" ? "playing" : "paused";
           pauseBtn.textContent = game.state === "paused" ? "▶" : "Ⅱ";
           showToast(game.state === "paused" ? "已暂停" : "继续战斗");
         }
 
         resize();
+        game = { stage: 1 };
         player = makePlayer();
+        generateStage();
         camera.x = player.x;
         camera.y = player.y;
+        updateCamera(1);
         bestValue.textContent = garageSave.best || 0;
-        generateArena();
-        modeButtons.forEach((button) =>
-          button.classList.toggle(
-            "active",
-            button.dataset.mode === selectedMode,
-          ),
-        );
+        stageGrid.innerHTML = STAGES.map(
+          (stage, index) =>
+            `<div class="mode-card stage-card" style="--accent: ${stage.accent}"><strong>第 ${index + 1} 关 · ${stage.name}</strong><span>关底首领：${stage.boss.name}</span></div>`,
+        ).join("");
         renderGarage();
         requestAnimationFrame(loop);
       })();
